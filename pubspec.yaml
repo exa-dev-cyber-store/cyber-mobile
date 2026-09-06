@@ -35,18 +35,30 @@ dependencies:
 
 
   # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.  
-  get: ^4.6.6
-  flutter_native_splash: ^2.4.1
-  dio: ^5.7.0
+  # State Management & Navigation
+  get: ^4.7.2
+
+  # Networking & HTTP
+  dio: ^5.8.0+1
   flutter_dotenv: ^5.2.1
-  google_sign_in: ^6.2.1  
-  shared_preferences: ^2.3.2
+
+  # Storage & Auth
+  shared_preferences: ^2.5.2
+  google_sign_in: ^6.2.1
+
+  # UI, Fonts & Styling
+  google_fonts: ^6.2.1
+  cupertino_icons: ^1.0.8
+  cached_network_image: ^3.4.1
   shimmer: ^3.0.0
-  intl: ^0.19.0
-  readmore: ^3.0.0  
-  webview_flutter: ^4.10.0  
-  
+  readmore: ^3.0.0
+  intl: ^0.20.2
+
+  # Utilities & Webview
+  flutter_native_splash: ^2.4.4
+  webview_flutter: ^4.10.0
+  printing: 5.13.2
+  pdf: 3.11.1
 
 dev_dependencies:
   flutter_test:
@@ -106,31 +118,29 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 flutter_native_splash:
-  color: "#ffffff"
-  image: assets/images/splash_logo2.png    
-  branding: assets/images/splash.png
+  color: "#0c1117"
+  image: assets/images/splash_logo2.png
   android: true
   ios: true
   
   android_12:
-    color: "#ffffff"
-    icon_background_color: "#ffffff"    
+    color: "#0c1117"
+    icon_background_color: "#0c1117"
     android_gravity: center
-    branding_mode: center
-    image: assets/images/splash_logo2.png    
-    branding: assets/images/splash.png
+    image: assets/images/splash_logo2.png
 
 flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icons/launcher.png"
   min_sdk_android: 21
-  background_color: "#ffffff"
+  adaptive_icon_background: "#0c1117"
+  adaptive_icon_foreground: "assets/icons/launcher.png"
   web:
     generate: true
     image_path: "assets/icons/launcher.png"
-    background_color: "#ffffff"
-    theme_color: "#ffffff"
+    background_color: "#0c1117"
+    theme_color: "#0c1117"
   windows:
     generate: true
     image_path: "assets/icons/launcher.png"

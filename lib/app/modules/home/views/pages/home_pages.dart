@@ -1,144 +1,303 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:cyber/core/constants/app_colors.dart';
+import 'package:cyber/core/constants/app_spacing.dart';
+import 'package:cyber/core/constants/app_text_styles.dart';
 import 'package:cyber/app/modules/cart/controllers/cart_controller.dart';
+import 'package:cyber/app/routes/app_pages.dart';
 import 'package:cyber/app/modules/home/controllers/home_controller.dart';
 import 'package:cyber/app/modules/home/widget/bar_categories.widget.dart';
 import 'package:cyber/app/modules/home/widget/card_product_widget.dart';
 import 'package:cyber/app/modules/home/widget/skeleton_categories_widget.dart';
 import 'package:cyber/app/modules/home/widget/skeleton_products_widget.dart';
 import 'package:cyber/app/modules/home/widget/top_bar_search_widget.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class HomePages extends StatelessWidget {
   HomePages({super.key});
 
   final HomeController homeController = Get.find<HomeController>();
-  final CartController cartController = Get.find<CartController>();
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: RefreshIndicator(
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: RefreshIndicator(
+          color: AppColors.primary,
           onRefresh: () async {
-            homeController.onInit();
+            await homeController.fetchAll();
           },
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Hello ${homeController.name!.split(' ')[0]}',
-                            style: TextStyle(
-                                fontSize: 30, fontWeight: FontWeight.w600)),
-                        Text(
-                          'Welcome to cyber',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.grey,
+          child: CustomScrollView(
+            controller: homeController.scrollHome,
+            slivers: [
+              // Top Greeting & Cart Bar
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: GetBuilder<HomeController>(
+                          builder: (controller) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Halo, ${controller.userName.split(' ')[0]} 👋',
+                                style: AppTextStyles.titleLarge,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Selamat datang di Cyber Store',
+                                style: AppTextStyles.bodyMedium,
+                              ),
+                            ],
                           ),
+                        ),
+                      ),
+                      // Cart Icon Button with dynamic badge
+                      IconButton(
+                        onPressed: () => Get.toNamed(Routes.CART),
+                        icon: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(AppSpacing.sm),
+                              decoration: BoxDecoration(
+                                color: AppColors.surface,
+                                borderRadius: AppSpacing.roundedMd,
+                                border: Border.all(color: AppColors.border),
+                              ),
+                              child: const Icon(
+                                Icons.shopping_bag_outlined,
+                                color: AppColors.textPrimary,
+                                size: 22,
+                              ),
+                            ),
+                            Positioned(
+                              top: -4,
+                              right: -4,
+                              child: GetBuilder<CartController>(
+                                init: Get.isRegistered<CartController>() ? Get.find<CartController>() : Get.put(CartController()),
+                                builder: (cartCtrl) {
+                                  if (cartCtrl.products.isEmpty) return const SizedBox();
+                                  return Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.accent,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Text(
+                                      cartCtrl.products.length.toString(),
+                                      style: AppTextStyles.labelSmall.copyWith(
+                                        color: AppColors.textLight,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Search Bar
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, 0),
+                  child: TopBarSearchWidget(),
+                ),
+              ),
+
+              // Hero Promo Banner Card
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, 0),
+                  child: Container(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: AppSpacing.roundedXl,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.cardShadow,
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
-                    IconButton(
-                      onPressed: () {
-                        Get.toNamed('/cart');
-                      },
-                      icon: Stack(
-                        children: [
-                          Icon(
-                            Icons.shopping_bag_outlined,
-                            color: Colors.grey,
-                            size: 30,
-                          ),
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              padding: EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                  color: Colors.red, shape: BoxShape.circle),
-                              child: GetBuilder(
-                                init: cartController,
-                                builder: (controller) => Text(
-                                  controller.products.length.toString(),
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.accent.withValues(alpha: 0.25),
+                                  borderRadius: AppSpacing.roundedPill,
+                                ),
+                                child: Text(
+                                  'OFFICIAL RESELLER',
+                                  style: AppTextStyles.labelSmall.copyWith(
+                                    color: AppColors.accent,
+                                    letterSpacing: 1.0,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ),
-                            ),
+                              const SizedBox(height: AppSpacing.sm),
+                              Text(
+                                'Ekosistem Apple\nTerlengkap',
+                                style: AppTextStyles.titleMedium.copyWith(
+                                  color: AppColors.textLight,
+                                  height: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.xs),
+                              Text(
+                                'Garansi resmi iBox 1 tahun',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.textTertiary,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
+                        const Icon(
+                          Icons.devices_other_rounded,
+                          size: 64,
+                          color: AppColors.textLight,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Categories Header & Scroller
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.xxl, AppSpacing.xl, AppSpacing.sm),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Kategori', style: AppTextStyles.titleSmall),
+                      const SizedBox(height: AppSpacing.md),
+                      GetBuilder<HomeController>(
+                        builder: (controller) => controller.isLoadingCategory
+                            ? const SkeletonCategoriesWidget()
+                            : BarCategoriesWidget(homeController: controller),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Section Title for Products
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.md),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GetBuilder<HomeController>(
+                        builder: (controller) => Text(
+                          controller.activeCategory.isEmpty
+                              ? 'Produk Unggulan'
+                              : 'Kategori: ${controller.activeCategory}',
+                          style: AppTextStyles.titleSmall,
+                        ),
+                      ),
+                      GetBuilder<HomeController>(
+                        builder: (controller) => Text(
+                          '${controller.totalProducts} Produk',
+                          style: AppTextStyles.bodySmall,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Products Grid or Skeleton
+              GetBuilder<HomeController>(
+                builder: (controller) {
+                  if (controller.isLoading && controller.products.isEmpty) {
+                    return const SkeletonProductsWidget();
+                  }
+
+                  if (controller.products.isEmpty) {
+                    return const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40),
+                        child: Center(
+                          child: Text('Tidak ada produk ditemukan'),
+                        ),
+                      ),
+                    );
+                  }
+
+                  return SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                    sliver: SliverGrid(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: AppSpacing.md,
+                        mainAxisSpacing: AppSpacing.md,
+                        childAspectRatio: 0.72,
+                      ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final product = controller.products[index];
+                          final isLiked = controller.isProductLiked(product.id);
+                          return CardProductWidget(
+                            id: product.id,
+                            imageThumbnail: product.imageThumbnail,
+                            name: product.name,
+                            price: product.price,
+                            category: product.category,
+                            like: isLiked,
+                            homeController: controller,
+                          );
+                        },
+                        childCount: controller.products.length,
                       ),
                     ),
-                  ],
-                ),
-                SizedBox(height: 40),
-                TopBarSearchWidget(),
-                SizedBox(height: 20),
-                Text(
-                  'Categories',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 20),
-                GetBuilder(
-                  init: homeController,
-                  builder: (controller) => controller.isLoadingCategory
-                      ? SkeletonCategoriesWidget()
-                      : BarCategoriesWidget(
-                          homeController: controller,
-                        ),
-                ),
-                SizedBox(height: 20),
-                GetBuilder(
-                  init: homeController,
-                  builder: (controller) => controller.isLoading
-                      ? SkeletonProductsWidget()
-                      : Expanded(
-                          child: GridView.count(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 10,
-                            controller: homeController.scrollHome,
-                            mainAxisSpacing: 10,
-                            children: List.generate(
-                              homeController.products.length,
-                              (index) => CardProductWidget(
-                                homeController: controller,
-                                like: homeController.listLikes.any((product) =>
-                                    product.id ==
-                                    homeController.products[index].id),
-                                imageThumbnail: homeController
-                                    .products[index].imageThumbnail,
-                                id: homeController.products[index].id,
-                                name: homeController.products[index].name,
-                                price: homeController.products[index].price,
-                              ),
-                            ),
+                  );
+                },
+              ),
+
+              // Bottom Loading Indicator for Infinite Scroll
+              SliverToBoxAdapter(
+                child: GetBuilder<HomeController>(
+                  builder: (controller) {
+                    if (controller.isLoadingMore) {
+                      return const Padding(
+                        padding: EdgeInsets.all(AppSpacing.xl),
+                        child: Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2.5),
                           ),
                         ),
+                      );
+                    }
+                    return const SizedBox(height: 80);
+                  },
                 ),
-                Center(
-                  child: GetBuilder<HomeController>(
-                    builder: (controller) {
-                      return controller.isLoadingEnd
-                          ? CircularProgressIndicator()
-                          : SizedBox();
-                    },
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

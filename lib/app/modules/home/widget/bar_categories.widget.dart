@@ -1,42 +1,70 @@
-import 'package:cyber/app/modules/home/controllers/home_controller.dart';
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../controllers/home_controller.dart';
 
 class BarCategoriesWidget extends StatelessWidget {
-  const BarCategoriesWidget({super.key, required this.homeController});
   final HomeController homeController;
+
+  const BarCategoriesWidget({super.key, required this.homeController});
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: List.generate(
-          homeController.categories.length,
-          (index) => InkWell(
-            onTap: () {
-              homeController.selectCategory(
-                  name: homeController.categories[index].name);
-            },
-            child: Container(
-              margin: const EdgeInsets.only(right: 10),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: homeController.categories[index].name ==
-                        homeController.activeCategory
-                    ? Colors.black
-                    : Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                homeController.categories[index].name,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: homeController.categories[index].name ==
-                          homeController.activeCategory
-                      ? Colors.white
-                      : Colors.black,
-                  fontWeight: FontWeight.w400,
-                ),
+    return SizedBox(
+      height: 40,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: homeController.categories.length + 1,
+        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.sm),
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            final isAllSelected = homeController.activeCategory.isEmpty;
+            return _buildChip(
+              label: 'Semua',
+              isSelected: isAllSelected,
+              onTap: () => homeController.selectCategory(''),
+            );
+          }
+
+          final category = homeController.categories[index - 1];
+          final isSelected = homeController.activeCategory == category.name;
+
+          return _buildChip(
+            label: category.name,
+            isSelected: isSelected,
+            onTap: () => homeController.selectCategory(category.name),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildChip({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: isSelected ? AppColors.primary : AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: AppSpacing.roundedPill,
+        side: BorderSide(
+          color: isSelected ? AppColors.primary : AppColors.border,
+          width: 1,
+        ),
+      ),
+      child: InkWell(
+        borderRadius: AppSpacing.roundedPill,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Center(
+            child: Text(
+              label,
+              style: AppTextStyles.labelMedium.copyWith(
+                color: isSelected ? AppColors.textLight : AppColors.textPrimary,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ),

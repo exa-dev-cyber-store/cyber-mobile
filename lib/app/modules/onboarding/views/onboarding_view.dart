@@ -1,34 +1,33 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-
-import '../controllers/onboarding_controller.dart';
-
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../routes/app_pages.dart';
+import '../controllers/onboarding_controller.dart';
 
 class OnboardingView extends StatelessWidget {
   OnboardingView({super.key});
 
-  final List<Map<String, dynamic>> contents = [
+  final List<Map<String, String>> contents = [
     {
-      'title': 'Shop apple products',
+      'title': 'The Ultimate\nApple Experience',
       'image': 'assets/images/onboarding1.png',
       'description':
-          'Discover a world of convenience and endless choices. Get ready to experience the best of Apple products right at your fingertips, from cutting-edge devices to seamless digital experiences.'
+          'Temukan ekosistem produk Apple terlengkap dan bergaransi resmi. Kualitas inovasi terbaik tepat di genggaman Anda.',
     },
     {
-      'title': 'Get IT Delivered',
+      'title': 'Express &\nSecure Delivery',
       'image': 'assets/images/onboarding2.png',
       'description':
-          'Discover a world of convenience and endless choices  Get ready to experience the best of online shopping right at your fingertips.'
+          'Pengiriman kilat dengan perlindungan asuransi penuh langsung ke depan pintu rumah Anda dengan aman.',
     },
     {
-      'title': 'Flexible payment',
+      'title': 'Seamless &\nFlexible Payment',
       'image': 'assets/images/onboarding3.png',
       'description':
-          'Discover a world of convenience and endless choices  Get ready to experience the best of online shopping right at your fingertips.'
+          'Metode pembayaran terintegrasi Midtrans: QRIS, Transfer Bank, hingga cicilan dengan jaminan proteksi data.',
     }
   ];
 
@@ -37,146 +36,158 @@ class OnboardingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(color: Colors.white),
+      backgroundColor: AppColors.background,
+      body: SafeArea(
         child: Column(
           children: [
+            // Top Bar with Skip button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'CYBER STORE',
+                    style: AppTextStyles.labelSmall.copyWith(
+                      color: AppColors.textTertiary,
+                      letterSpacing: 1.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Obx(
+                    () => controller.pagesIndex.value < 2
+                        ? TextButton(
+                            onPressed: () => Get.offNamed(Routes.LOGIN),
+                            child: Text(
+                              'Lewati',
+                              style: AppTextStyles.labelMedium.copyWith(
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                          )
+                        : const SizedBox(height: 48),
+                  ),
+                ],
+              ),
+            ),
+
+            // Page View
             Expanded(
               child: PageView.builder(
-                itemCount: 3,
+                itemCount: contents.length,
                 controller: controller.pageController,
                 onPageChanged: (index) {
                   controller.pagesIndex.value = index;
                 },
                 itemBuilder: (context, index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 49, 49, 49),
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(50),
-                          bottomRight: Radius.circular(50),
-                        )),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 100),
+                  final item = contents[index];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        // Image Container with subtle glow
                         Expanded(
-                            child: Column(
-                          children: [
-                            Image.asset(
-                              contents[index]['image'],
-                              width: 300,
-                              height: 300,
-                            ),
-                            Text(
-                              contents[index]['title'],
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                          flex: 3,
+                          child: Center(
+                            child: Image.asset(
+                              item['image']!,
+                              fit: BoxFit.contain,
+                              errorBuilder: (_, __, ___) => const Icon(
+                                Icons.devices_rounded,
+                                size: 100,
+                                color: AppColors.textSecondary,
                               ),
                             ),
-                            Text(
-                              contents[index]['description'],
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+
+                        // Text content
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                item['title']!,
+                                style: AppTextStyles.displayMedium.copyWith(
+                                  height: 1.15,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                            ),
-                          ],
-                        )),
+                              const SizedBox(height: AppSpacing.md),
+                              Text(
+                                item['description']!,
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  height: 1.5,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   );
                 },
               ),
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 50, bottom: 60, left: 20),
-                  child: Row(
+
+            // Bottom Actions & Page Indicators
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.xxl),
+              child: Column(
+                children: [
+                  // Indicator Dots
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
-                      3,
-                      (index) {
-                        return Obx(
-                          () => InkWell(
-                            onTap: () {
-                              controller.onTap(index);
-                            },
-                            child: AnimatedContainer(
-                              duration: Duration(milliseconds: 300),
-                              margin: const EdgeInsets.all(5),
-                              width: controller.pagesIndex.value == index
-                                  ? 30
-                                  : 10,
-                              height: 10,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: controller.pagesIndex.value == index
-                                    ? Colors.black
-                                    : Colors.black.withOpacity(0.5),
-                              ),
+                      contents.length,
+                      (index) => Obx(
+                        () {
+                          final isSelected = controller.pagesIndex.value == index;
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: isSelected ? 24 : 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.primary
+                                  : AppColors.primary.withValues(alpha: 0.15),
+                              borderRadius: AppSpacing.roundedPill,
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: Obx(
-                      () => controller.pagesIndex.value + 1 == 3
-                          ? Container(
-                              margin: const EdgeInsets.all(35),
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.only(
-                                    top: 10,
-                                    bottom: 10,
-                                    left: 30,
-                                    right: 30,
-                                  ),
-                                  side:
-                                      BorderSide(color: Colors.black, width: 2),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  Get.offNamed(Routes.STARTED);
-                                },
-                                child: Text('Get Started',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Colors.black,
-                                    )),
-                              ),
-                            )
-                          : ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.all(
-                                    35,
-                                  ),
-                                  shape: CircleBorder(),
-                                  backgroundColor: Colors.white),
-                              onPressed: () {
-                                log('${controller.pagesIndex.value}');
-                                controller.nextPage();
-                              },
-                              child: Icon(
-                                Icons.arrow_forward,
-                                size: 60,
-                                color: Colors.black,
-                              ),
-                            ),
-                    ),
+                  const SizedBox(height: AppSpacing.xxl),
+
+                  // Action Button
+                  Obx(
+                    () {
+                      final isLastPage = controller.pagesIndex.value == contents.length - 1;
+                      return AppButton(
+                        text: isLastPage ? 'Mulai Belanja' : 'Lanjutkan',
+                        suffixIcon: Icon(
+                          isLastPage ? Icons.arrow_forward_rounded : Icons.chevron_right_rounded,
+                          color: AppColors.textLight,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          if (isLastPage) {
+                            Get.offNamed(Routes.LOGIN);
+                          } else {
+                            controller.nextPage();
+                          }
+                        },
+                      );
+                    },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

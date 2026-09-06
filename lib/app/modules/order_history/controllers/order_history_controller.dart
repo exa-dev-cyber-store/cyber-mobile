@@ -1,49 +1,54 @@
-import 'dart:developer';
-
-import 'package:cyber/app/data/models/order_model.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../../data/models/order_model.dart';
+import '../../../../data/repositories/order_repository.dart';
+import '../../../routes/app_pages.dart';
 
 class OrderHistoryController extends GetxController {
-  //TODO: Implement OrderHistoryController
+  final OrderRepository _orderRepo = OrderRepository();
+
   List<OrderModel> orders = [];
   bool loading = true;
-  Dio dio = Dio();
 
   @override
   void onInit() {
     super.onInit();
-    loading = true;
     getOrders();
   }
 
   Future<void> getOrders() async {
+    loading = true;
+    update();
+
     try {
-      String url = dotenv.env['BASE_URL']!;
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String token = prefs.getString('token')!;
-      loading = true;
-      var response = await dio.get(
-        '$url/api/orders',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      if (response.statusCode == 200) {
-        orders = List<OrderModel>.from(
-            response.data.map((order) => OrderModel.fromJson(order)));
-        loading = false;
-        update();
-      }
-    } on DioException catch (e) {
-      log(e.response!.data.toString());
+      orders = await _orderRepo.getOrders();
+    } catch (e) {
+      AppLogger.e('Error loading order history', e);
+      orders = [];
+    } finally {
       loading = false;
-      Get.snackbar('Error', 'Opps, something went wrong please refresh');
       update();
+    }
+  }
+
+  Future<void> payPendingOrder(OrderModel order) async {
+    try {
+      final statusRes = await _orderRepo.checkPaymentStatus(order.id);
+      if (statusRes.charge != null) {
+        Get.toNamed(
+          Routes.PAYMENT_DETAIL,
+          arguments: {
+            'charge': statusRes.charge,
+            'orderId': order.id,
+            'totalAmount': order.total,
+          },
+        );
+      } else {
+        Get.toNamed('/invoice/${order.id}');
+      }
+    } catch (e) {
+      AppLogger.e('Check payment error', e);
+      Get.toNamed('/invoice/${order.id}');
     }
   }
 }

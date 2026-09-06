@@ -1,15 +1,13 @@
-import 'dart:developer';
-
-import 'package:cyber/app/data/models/address_model.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/app_snackbar.dart';
+import '../../../../data/models/address_model.dart';
+import '../../../../data/repositories/address_repository.dart';
 
 class AddressController extends GetxController {
-  //TODO: Implement AddressController
-  Dio dio = Dio();
-  List<AddressModel>? addresses;
+  final AddressRepository _addressRepo = AddressRepository();
+
+  List<AddressModel> addresses = [];
   bool isLoading = false;
   bool isDeleting = false;
 
@@ -20,63 +18,36 @@ class AddressController extends GetxController {
   }
 
   Future<void> getAddress() async {
-    String url = dotenv.env['BASE_URL']!;
     isLoading = true;
     update();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
-    try {
-      var response = await dio.get(
-        '$url/api/delivery-addresses',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
 
-      if (response.statusCode == 200) {
-        List<dynamic> data = response.data;
-        addresses = List.from(
-          data.map(
-            (e) => AddressModel.fromJson(e),
-          ),
-        );
-        log(data.toString());
-      }
+    try {
+      addresses = await _addressRepo.getAddresses();
+    } catch (e) {
+      AppLogger.e('Error loading addresses', e);
+      addresses = [];
+    } finally {
       isLoading = false;
       update();
-    } on DioException catch (e) {
-      if (e.response!.statusCode == 404) {
-        addresses = [];
-        isLoading = false;
-        update();
-      }
     }
   }
 
   Future<void> deleteAddress(String id) async {
-    String url = dotenv.env['BASE_URL']!;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     isDeleting = true;
     update();
-    var token = prefs.getString('token');
+
     try {
-      var response = await dio.delete(
-        '$url/api/delivery-addresses/$id',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      if (response.statusCode == 204) {
-        addresses!.removeWhere((element) => element.id == id);
-        isDeleting = false;
-        update();
+      final success = await _addressRepo.deleteAddress(id);
+      if (success) {
+        addresses.removeWhere((a) => a.id == id);
+        AppSnackbar.success('Alamat pengiriman berhasil dihapus.', title: 'Dihapus');
       }
-    } on DioException catch (e) {
-      log(e.response!.data.toString());
+    } catch (e) {
+      AppLogger.e('Error deleting address', e);
+      AppSnackbar.error('Gagal menghapus alamat.', title: 'Gagal');
+    } finally {
+      isDeleting = false;
+      update();
     }
   }
 }

@@ -1,17 +1,16 @@
-import 'dart:developer';
-
-import 'package:cyber/app/data/models/cart_model.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/app_snackbar.dart';
+import '../../../../data/models/cart_model.dart';
+import '../../../../data/repositories/cart_repository.dart';
 
 class CartController extends GetxController {
-  //TODO: Implement CartController
-  Dio dio = Dio();
-  List<CartModel> products = [];
+  final CartRepository _cartRepo = CartRepository();
+
+  List<CartItemModel> products = [];
   int totalCart = 0;
   bool isLoading = false;
+  bool isUpdatingItem = false;
 
   @override
   void onInit() {
@@ -22,166 +21,95 @@ class CartController extends GetxController {
   void calculateTotalCart() {
     totalCart = products.fold(
       0,
-      (previousValue, products) =>
-          previousValue + (products.product.price * products.quantity),
+      (previousValue, item) => previousValue + (item.product.price * item.quantity),
     );
     update();
   }
 
   Future<void> fetchCart() async {
-    var url = dotenv.env['BASE_URL'];
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    isLoading = true;
+    update();
 
     try {
-      var response = await dio.get('$url/api/carts',
-          options: Options(headers: {
-            'Authorization': 'Bearer ${prefs.getString('token')}',
-          }));
-      if (response.statusCode == 200) {
-        List<dynamic> data = response.data["products"];
-        if (data.isEmpty) {
-          products = [];
-          update();
-        } else {
-          products = List.from(
-            data.map(
-              (product) => CartModel.fromJson(product),
-            ),
-          );
-          calculateTotalCart();
-          update();
-        }
-      }
-    } on DioException catch (e) {
-      log(e.response!.data.toString());
-      if (e.response!.statusCode == 401) {
-        Get.offAllNamed('/login');
-      } else if (e.response!.statusCode == 404) {
-        products = [];
-      }
+      products = await _cartRepo.getCart();
+      calculateTotalCart();
+    } catch (e) {
+      AppLogger.e('Error fetching cart', e);
+      products = [];
+      totalCart = 0;
+    } finally {
+      isLoading = false;
+      update();
     }
   }
 
   Future<void> addToCart({required String id}) async {
-    var url = dotenv.env['BASE_URL'];
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
+    isUpdatingItem = true;
+    update();
 
     try {
-      isLoading = true;
-      update();
-      var response = await dio.post(
-        '$url/api/carts',
-        data: {
-          'productId': id,
-          'quantity': 1,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      if (response.statusCode == 200) {
-        products = products.where(
-          (product) {
-            if (product.product.id == id) {
-              product.quantity += 1;
-            }
-            return true;
-          },
-        ).toList();
+      final success = await _cartRepo.addToCart(productId: id, quantity: 1);
+      if (success) {
+        final existingIndex = products.indexWhere((item) => item.product.id == id);
+        if (existingIndex != -1) {
+          products[existingIndex].quantity += 1;
+        } else {
+          await fetchCart();
+          return;
+        }
         calculateTotalCart();
-        isLoading = false;
-        update();
       }
-      Get.snackbar('Success', 'Product added to cart');
-    } on DioException catch (e) {
-      log(e.response!.data.toString());
-      isLoading = false;
+    } catch (e) {
+      AppLogger.e('Error incrementing cart quantity', e);
+      AppSnackbar.error('Tidak dapat menambah jumlah produk.', title: 'Gagal');
+    } finally {
+      isUpdatingItem = false;
       update();
-      Get.snackbar('Error', 'Opps, something went wrong when adding to cart');
     }
   }
 
   Future<void> reduceCart({required String id}) async {
-    var url = dotenv.env['BASE_URL'];
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
+    isUpdatingItem = true;
+    update();
+
     try {
-      isLoading = true;
-      update();
-      var response = await dio.post(
-        '$url/api/carts/reduce',
-        data: {
-          'productId': id,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      if (response.statusCode == 200) {
-        products = products.where((element) {
-          if (element.product.id == id) {
-            element.quantity -= 1;
-          } else if (element.quantity == 1) {
-            return false;
+      final success = await _cartRepo.reduceCart(productId: id);
+      if (success) {
+        final existingIndex = products.indexWhere((item) => item.product.id == id);
+        if (existingIndex != -1) {
+          if (products[existingIndex].quantity > 1) {
+            products[existingIndex].quantity -= 1;
+          } else {
+            products.removeAt(existingIndex);
           }
-          return element.quantity > 0;
-        }).toList();
+        }
         calculateTotalCart();
-        isLoading = false;
-        update();
       }
-      Get.snackbar('Success', 'Product reduce from cart');
-    } on DioException catch (e) {
-      log(e.response!.data.toString());
-      isLoading = false;
+    } catch (e) {
+      AppLogger.e('Error reducing cart quantity', e);
+      AppSnackbar.error('Tidak dapat mengurangi jumlah produk.', title: 'Gagal');
+    } finally {
+      isUpdatingItem = false;
       update();
-      Get.snackbar(
-          'Error', 'Opps, something went wrong when deleting from cart');
     }
   }
 
   Future<void> deleteCart({required String id}) async {
-    var url = dotenv.env['BASE_URL'];
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
-
     try {
-      isLoading = true;
-      update();
-      var response = await dio.post(
-        '$url/api/carts/remove',
-        data: {
-          'productId': id,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      if (response.statusCode == 200) {
-        products.removeWhere((element) => element.product.id == id);
-        isLoading = false;
+      final success = await _cartRepo.removeFromCart(productId: id);
+      if (success) {
+        products.removeWhere((item) => item.product.id == id);
         calculateTotalCart();
-        update();
+        AppSnackbar.info('Produk dihapus dari keranjang belanja.', title: 'Dihapus');
       }
-      Get.snackbar('Success', 'Product deleted from cart');
-    } on DioException catch (e) {
-      log(e.response!.data.toString());
-      isLoading = false;
-      update();
-      Get.snackbar(
-          'Error', 'Opps, something went wrong when deleting from cart');
+    } catch (e) {
+      AppLogger.e('Error deleting item from cart', e);
+      AppSnackbar.error('Gagal menghapus produk dari keranjang.', title: 'Gagal');
     }
   }
 
   void clearCart() {
-    products = [];
+    products.clear();
     totalCart = 0;
     update();
   }

@@ -1,125 +1,135 @@
-import 'package:cyber/app/modules/cart/widget/card_cart_products.dart';
-import 'package:cyber/app/modules/cart/widget/cart_isEmpty_widget.dart';
-import 'package:cyber/app/routes/app_pages.dart';
-import 'package:cyber/helper/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import 'package:get/get.dart';
-
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/empty_state_view.dart';
+import '../../../routes/app_pages.dart';
 import '../controllers/cart_controller.dart';
+import '../widget/card_cart_products.dart';
 
 class CartView extends GetView<CartController> {
   CartView({super.key});
 
   final CartController cartController = Get.find<CartController>();
-  final url = dotenv.env['BASE_URL'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Shopping Cart'),
+        title: Text('Keranjang Belanja', style: AppTextStyles.titleMedium),
         centerTitle: true,
+        backgroundColor: AppColors.surface,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            Get.back();
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () => Get.back(),
+        ),
+      ),
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () => cartController.fetchCart(),
+        child: GetBuilder<CartController>(
+          builder: (controller) {
+            if (controller.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (controller.products.isEmpty) {
+              return EmptyStateView(
+                icon: Icons.shopping_bag_outlined,
+                title: 'Keranjang Masih Kosong',
+                description: 'Yuk, temukan produk Apple impianmu dan tambahkan ke keranjang!',
+                buttonText: 'Mulai Belanja',
+                onButtonPressed: () => Get.offNamed(Routes.HOME),
+              );
+            }
+
+            return ListView.separated(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              itemCount: controller.products.length,
+              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+              itemBuilder: (context, index) {
+                final item = controller.products[index];
+                return CardCartproduct(
+                  item: item,
+                  controller: controller,
+                );
+              },
+            );
           },
         ),
-        automaticallyImplyLeading: true,
-        backgroundColor: Colors.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30),
-          ),
-        ),
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: GetBuilder(
-            init: cartController,
-            builder: (controller) {
-              return controller.products.isEmpty
-                  ? CartIsEmptyWidget()
-                  : ListView.separated(
-                      itemCount: controller.products.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(height: 20);
-                      },
-                      itemBuilder: (context, index) {
-                        return CardCartproduct(
-                            url: url.toString(),
-                            index: index,
-                            controller: controller);
-                      },
-                    );
-            },
-          ),
-        ),
-      ),
-      bottomNavigationBar: GetBuilder(
-        init: cartController,
+
+      // Sticky Checkout Bar
+      bottomNavigationBar: GetBuilder<CartController>(
         builder: (controller) {
-          return controller.products.isEmpty
-              ? const SizedBox()
-              : Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Subtotal',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+          if (controller.products.isEmpty) return const SizedBox();
+
+          return Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              border: const Border(top: BorderSide(color: AppColors.border, width: 1)),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.cardShadow,
+                  blurRadius: 16,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceSecondary,
+                      borderRadius: AppSpacing.roundedSm,
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.local_offer_outlined, size: 14, color: AppColors.accent),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            'Punya voucher promo? Bisa dipakai pada halaman checkout.',
+                            style: AppTextStyles.bodySmall.copyWith(
+                              fontSize: 11,
+                              color: AppColors.textSecondary,
                             ),
-                          ),
-                          Text(
-                            Helper.formatPrice(controller.totalCart),
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          Get.toNamed(Routes.SELECT_ADDRESSES);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          backgroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text('Process Checkout',
-                            style:
-                                TextStyle(fontSize: 20, color: Colors.white)),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Subtotal', style: AppTextStyles.bodyMedium),
+                      Text(
+                        CurrencyFormatter.format(controller.totalCart),
+                        style: AppTextStyles.titleMedium.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ],
                   ),
-                );
+                  const SizedBox(height: AppSpacing.md),
+                  AppButton(
+                    text: 'Lanjutkan ke Pembayaran',
+                    suffixIcon: const Icon(Icons.arrow_forward_rounded, size: 18, color: AppColors.textLight),
+                    onPressed: () => Get.toNamed(Routes.CHECKOUT),
+                  ),
+                ],
+              ),
+            ),
+          );
         },
       ),
     );

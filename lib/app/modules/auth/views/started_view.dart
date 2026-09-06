@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../routes/app_pages.dart';
 
 class StartedView extends StatelessWidget {
@@ -8,73 +12,102 @@ class StartedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 30),
-              child: Image.asset('assets/images/splash.png'),
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(
-                top: 200, bottom: 40, left: 40, right: 40),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  colors: [
-                    const Color.fromARGB(255, 27, 35, 41),
-                    const Color.fromARGB(255, 91, 101, 119)
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  stops: [0.1, 0.9]),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(100),
-                topRight: Radius.circular(100),
+      backgroundColor: AppColors.primary,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl, vertical: AppSpacing.xl),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Brand Mark Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.apple_rounded, color: AppColors.textLight, size: 28),
+                  const SizedBox(width: AppSpacing.xs),
+                  Text(
+                    'CYBER STORE',
+                    style: AppTextStyles.titleSmall.copyWith(
+                      color: AppColors.textLight,
+                      letterSpacing: 2.0,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            child: Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.toNamed(Routes.LOGIN);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
+
+              // Hero Illustration
+              Expanded(
+                child: Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: AppSpacing.roundedXl,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.accent.withValues(alpha: 0.3),
+                          blurRadius: 32,
+                          spreadRadius: 4,
+                        ),
+                      ],
                     ),
-                    child: const Text('Login',
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black)),
+                    child: ClipRRect(
+                      borderRadius: AppSpacing.roundedXl,
+                      child: Image.asset(
+                        'assets/images/splash_logo2.png',
+                        height: 220,
+                        width: 220,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.phone_iphone_rounded,
+                          size: 140,
+                          color: AppColors.textLight,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                SizedBox(
-                  height: 40,
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.toNamed(Routes.REGISTER);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
+              ),
+
+              // Bottom Section
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Inovasi Apple.\nKini di Tangan Anda.',
+                    style: AppTextStyles.displayMedium.copyWith(
+                      color: AppColors.textLight,
+                      height: 1.15,
                     ),
-                    child: const Text('Register',
-                        style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black)),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-              ],
-            ),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    'Belanja produk Apple original dengan garansi resmi dan proteksi pembayaran terbaik.',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textTertiary,
+                      height: 1.4,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: AppSpacing.xxxl),
+                  AppButton(
+                    text: 'Masuk ke Akun',
+                    variant: AppButtonVariant.secondary,
+                    onPressed: () => Get.toNamed(Routes.LOGIN),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  AppButton(
+                    text: 'Buat Akun Baru',
+                    variant: AppButtonVariant.outline,
+                    borderRadius: AppSpacing.roundedLg,
+                    onPressed: () => Get.toNamed(Routes.REGISTER),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1,163 +1,386 @@
-import 'package:cyber/app/modules/cart/controllers/cart_controller.dart';
-import 'package:cyber/app/modules/checkout/widget/card_checkout_products.dart';
-import 'package:cyber/helper/main.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../routes/app_pages.dart';
+import '../../cart/controllers/cart_controller.dart';
+import '../../select_addresses/controllers/select_addresses_controller.dart';
 import '../controllers/checkout_controller.dart';
+import '../widget/card_checkout_products.dart';
+import '../widget/voucher_card_widget.dart';
 
 class CheckoutView extends GetView<CheckoutController> {
   const CheckoutView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final CartController cartController = Get.find<CartController>();
-    // final SelectAddressesController selectAddressController =
-    //     Get.find<SelectAddressesController>();
-    final CheckoutController checkoutController =
-        Get.find<CheckoutController>();
+
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Checkout'),
+        title: Text('Konfirmasi Pesanan', style: AppTextStyles.titleMedium),
         centerTitle: true,
+        backgroundColor: AppColors.surface,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () => Get.back(),
+        ),
       ),
       body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: GetBuilder(
-            init: cartController,
-            builder: (controller) {
-              return ListView.separated(
-                itemCount: controller.products.length,
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Selected Address Card
+            GetBuilder<SelectAddressesController>(
+              builder: (addrCtrl) {
+                final address = addrCtrl.selectedAddress;
+                return Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: AppSpacing.roundedXl,
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_rounded, size: 18, color: AppColors.accent),
+                              const SizedBox(width: AppSpacing.xs),
+                              Text(
+                                'Alamat Pengiriman',
+                                style: AppTextStyles.labelLarge.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                            ],
+                          ),
+                          TextButton(
+                            onPressed: () => Get.toNamed(Routes.SELECT_ADDRESSES),
+                            child: Text(address != null ? 'Ubah' : 'Pilih Alamat'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      if (addrCtrl.isLoading) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Row(
+                            children: [
+                              const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Text(
+                                'Memuat alamat pengiriman...',
+                                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else if (addrCtrl.hasError && address == null) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline_rounded, size: 16, color: AppColors.error),
+                              const SizedBox(width: AppSpacing.xs),
+                              Expanded(
+                                child: Text(
+                                  addrCtrl.errorMessage ?? 'Gagal memuat alamat.',
+                                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () => addrCtrl.getAddress(),
+                                borderRadius: AppSpacing.roundedSm,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.refresh_rounded, size: 14, color: AppColors.accent),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'Coba Lagi',
+                                        style: AppTextStyles.labelSmall.copyWith(
+                                          color: AppColors.accent,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ] else if (address != null) ...[
+                        Text(address.name, style: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 2),
+                        Text(address.fullAddress, style: AppTextStyles.bodySmall.copyWith(height: 1.4)),
+                      ] else ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Belum ada alamat terpilih.',
+                                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () => addrCtrl.getAddress(),
+                              borderRadius: AppSpacing.roundedSm,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.refresh_rounded, size: 14, color: AppColors.textSecondary),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Muat Ulang',
+                                      style: AppTextStyles.labelSmall.copyWith(
+                                        color: AppColors.textSecondary,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            // Order Items
+            Text('Ringkasan Produk', style: AppTextStyles.titleSmall),
+            const SizedBox(height: AppSpacing.sm),
+            GetBuilder<CartController>(
+              builder: (controller) => ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                separatorBuilder: (context, index) {
-                  return const SizedBox(height: 20);
-                },
+                itemCount: controller.products.length,
+                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (context, index) {
-                  return CardCheckoutProducts(
-                      url: checkoutController.url,
-                      index: index,
-                      controller: controller);
+                  return CardCheckoutProducts(item: controller.products[index]);
                 },
-              );
-            },
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+
+            // Voucher & Promo Section
+            Text('Voucher & Kupon Promo', style: AppTextStyles.titleSmall),
+            const SizedBox(height: AppSpacing.sm),
+            VoucherCardWidget(controller: controller),
+            const SizedBox(height: AppSpacing.xl),
+
+            // Payment Method Selection
+            Text('Metode Pembayaran', style: AppTextStyles.titleSmall),
+            const SizedBox(height: AppSpacing.sm),
+            GetBuilder<CheckoutController>(
+              builder: (ctrl) => Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: AppSpacing.roundedXl,
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: ctrl.paymentMethods.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final method = ctrl.paymentMethods[index];
+                    final isSelected = ctrl.selectedPaymentId == method.id;
+                    return InkWell(
+                      onTap: () => ctrl.setPaymentMethod(method.id),
+                      borderRadius: index == 0
+                          ? const BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXl))
+                          : index == ctrl.paymentMethods.length - 1
+                              ? const BorderRadius.vertical(bottom: Radius.circular(AppSpacing.radiusXl))
+                              : BorderRadius.zero,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 14),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppColors.accent.withValues(alpha: 0.1)
+                                    : AppColors.surfaceSecondary,
+                                borderRadius: AppSpacing.roundedMd,
+                              ),
+                              child: Icon(
+                                method.icon,
+                                size: 22,
+                                color: isSelected ? AppColors.accent : AppColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    method.title,
+                                    style: AppTextStyles.labelLarge.copyWith(
+                                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    method.subtitle,
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      fontSize: 11,
+                                      color: AppColors.textTertiary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              width: 20,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isSelected ? AppColors.accent : AppColors.border,
+                                  width: isSelected ? 6 : 1.5,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+
+            // Payment Summary Breakdown Card
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: AppSpacing.roundedXl,
+                border: Border.all(color: AppColors.border),
+              ),
+              child: GetBuilder<CheckoutController>(
+                builder: (ctrl) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Rincian Pembayaran', style: AppTextStyles.titleSmall),
+                    const SizedBox(height: AppSpacing.md),
+                    _buildRow('Subtotal Produk', CurrencyFormatter.format(cartController.totalCart)),
+                    const SizedBox(height: AppSpacing.sm),
+                    _buildRow('Pajak PPN', CurrencyFormatter.format(ctrl.tax)),
+                    const SizedBox(height: AppSpacing.sm),
+                    _buildRow('Ongkos Kirim', CurrencyFormatter.format(ctrl.shipping)),
+                    if (ctrl.discount > 0) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      _buildRow(
+                        ctrl.appliedVoucher != null
+                            ? 'Diskon Voucher (${ctrl.appliedVoucher!.code})'
+                            : 'Diskon Voucher',
+                        '- ${CurrencyFormatter.format(ctrl.discount)}',
+                        isDiscount: true,
+                      ),
+                    ],
+                    const Divider(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Total Pembayaran', style: AppTextStyles.titleSmall),
+                        Text(
+                          CurrencyFormatter.format(ctrl.total),
+                          style: AppTextStyles.priceLarge.copyWith(fontSize: 18),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+
+            // Midtrans Badge
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceTertiary,
+                borderRadius: AppSpacing.roundedLg,
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.shield_outlined, size: 20, color: AppColors.accent),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      'Pembayaran aman & terenkripsi oleh Midtrans Payment Gateway.',
+                      style: AppTextStyles.bodySmall,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 100),
+          ],
+        ),
+      ),
+
+      // Sticky Bottom Pay Bar
+      bottomNavigationBar: GetBuilder<CheckoutController>(
+        builder: (controller) => Container(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            border: Border(top: BorderSide(color: AppColors.border, width: 1)),
+          ),
+          child: SafeArea(
+            child: AppButton(
+              text: 'Bayar Sekarang • ${CurrencyFormatter.format(controller.total)}',
+              isLoading: controller.isCheckingOut,
+              onPressed: () => controller.checkout(),
+            ),
           ),
         ),
       ),
-      bottomNavigationBar: GetBuilder(
-        init: checkoutController,
-        builder: (controller) {
-          return Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Subtotal',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      Helper.formatPrice(cartController.totalCart),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Tax',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    Text(
-                      Helper.formatPrice(controller.tax),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Shipping',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    Text(
-                      Helper.formatPrice(controller.shipping),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Total',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      Helper.formatPrice(controller.total),
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    controller.checkout();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    backgroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text('Checkout',
-                      style: TextStyle(fontSize: 20, color: Colors.white)),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+    );
+  }
+
+  Widget _buildRow(String label, String value, {bool isDiscount = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: AppTextStyles.bodyMedium),
+        Text(
+          value,
+          style: AppTextStyles.labelMedium.copyWith(
+            color: isDiscount ? AppColors.success : AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }

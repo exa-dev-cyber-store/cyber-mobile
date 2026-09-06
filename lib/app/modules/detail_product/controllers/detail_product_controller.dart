@@ -1,164 +1,87 @@
-import 'dart:developer';
-
-import 'package:cyber/app/data/models/product_model.dart';
-import 'package:cyber/app/modules/cart/controllers/cart_controller.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/app_snackbar.dart';
+import '../../../../data/models/product_model.dart';
+import '../../../../data/repositories/cart_repository.dart';
+import '../../../../data/repositories/product_repository.dart';
+import '../../cart/controllers/cart_controller.dart';
 
 class DetailProductController extends GetxController {
-  //TODO: Implement DetailProductController
-  Dio dio = Dio();
+  final ProductRepository _productRepo = ProductRepository();
+  final CartRepository _cartRepo = CartRepository();
+
   bool isLoading = true;
-  bool isLoadingAddToCart = false;
+  bool isAddingToCart = false;
   String activeImage = '';
   ProductModel? product;
-  List<ProductModel> products = [];
-  List<String>? imageDetails;
-  String param = Get.parameters['id'].toString();
-  int totalProducts = 0;
-  bool isLoadingEnd = false;
-  ScrollController scroll = ScrollController();
-  final CartController cartController = Get.find<CartController>();
+  List<ProductModel> relatedProducts = [];
+  List<String> allImages = [];
+  String productId = '';
+
+  late final CartController cartController;
 
   @override
   void onInit() {
     super.onInit();
-    isLoading = true;
-    scroll.addListener(
-      () async {
-        if (scroll.position.maxScrollExtent == scroll.position.pixels &&
-            products.length != totalProducts &&
-            isLoadingEnd != true &&
-            scroll.position.atEdge) {
-          isLoadingEnd = true;
-          await addFetchAnotherProducts();
-        }
-      },
-    );
-    fetchAllFirst();
+    productId = Get.parameters['id']?.toString() ?? '';
+    cartController = Get.isRegistered<CartController>() ? Get.find<CartController>() : Get.put(CartController());
+    fetchProductDetail();
   }
 
-  Future<void> fetchAllFirst() async {
+  Future<void> fetchProductDetail() async {
+    if (productId.isEmpty) return;
+
+    isLoading = true;
+    update();
+
     try {
-      await fetchSingleProduct();
-      await fetchAnotherProducts();
+      product = await _productRepo.getProductDetail(productId);
+      if (product != null) {
+        activeImage = product!.imageThumbnail;
+        allImages = [product!.imageThumbnail, ...product!.imageDetails];
+
+        // Fetch related products in the same category
+        final related = await _productRepo.getProducts(
+          limit: 4,
+          category: product!.category,
+        );
+        relatedProducts = related.items.where((p) => p.id != productId).toList();
+      }
+    } catch (e) {
+      AppLogger.e('Error loading product details', e);
+      AppSnackbar.error('Tidak dapat memuat detail produk.', title: 'Gagal Memuat');
+    } finally {
       isLoading = false;
       update();
-    } catch (e) {
-      Get.snackbar('Error', 'Opps, something went wrong');
-      Get.back();
-      print(e);
     }
   }
 
-  void changeActiveImage(String image) {
-    activeImage = image;
+  void setActiveImage(String img) {
+    activeImage = img;
     update();
   }
 
-  Future<void> fetchSingleProduct() async {
-    String url = dotenv.env['BASE_URL'].toString();
-    var id = Get.parameters['id'];
-    try {
-      final response = await dio.get('$url/api/products/${id.toString()}');
-      product = ProductModel.fromJson(response.data);
-      activeImage = product!.imageThumbnail;
-      imageDetails = List.from(product!.imageDetails);
-      imageDetails!.add(product!.imageThumbnail);
-    } catch (e) {
-      log(e.toString());
-    }
-  }
+  Future<void> addToCart() async {
+    if (product == null || isAddingToCart) return;
 
-  Future<void> fetchAnotherProducts() async {
-    String url = dotenv.env['BASE_URL'].toString();
-    var id = Get.parameters['id'];
-    try {
-      final response = await dio.get(
-          '$url/api/products?id=${id.toString()}&limit=4&category=${product!.category}');
-      List<dynamic> data = response.data['products'];
-      totalProducts = response.data['count'];
-      products = List.from(
-        data.map(
-          (e) {
-            return ProductModel.fromJson(e);
-          },
-        ),
-      );
-    } catch (e) {
-      log(e.toString());
-    }
-  }
-
-  Future<void> addFetchAnotherProducts() async {
-    String url = dotenv.env['BASE_URL'].toString();
-    var id = Get.parameters['id'];
-    isLoadingEnd = true;
+    isAddingToCart = true;
     update();
-    try {
-      final response = await dio.get(
-          "$url/api/products?id=${id.toString()}&limit=4&category=${product!.category}&skip=${products.length}");
-      List<dynamic> data = response.data['products'];
-      var filterData = data.map((e) {
-        return ProductModel.fromJson(e);
-      });
-      products.addAll(
-        List.from(
-          filterData,
-        ),
-      );
-      isLoadingEnd = false;
-      update();
-    } catch (e) {
-      Get.snackbar('Error', 'Opps, something went wrong');
-      isLoadingEnd = false;
-      log(e.toString());
-    }
-  }
 
-  Future<void> addToCart({required String id}) async {
-    String url = dotenv.env['BASE_URL'].toString();
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
-    isLoadingAddToCart = true;
-    update();
     try {
-      var res = await dio.post(
-        '$url/api/carts',
-        data: {
-          'productId': id,
-          'quantity': 1,
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-      isLoadingAddToCart = false;
-      if (res.statusCode == 200) {
-        cartController.fetchCart();
-        update();
-        Get.snackbar('Success', 'Product added to cart');
+      final success = await _cartRepo.addToCart(productId: product!.id, quantity: 1);
+      if (success) {
+        await cartController.fetchCart();
+        AppSnackbar.success(
+          '${product!.name} telah masuk ke keranjang belanja.',
+          title: 'Berhasil Ditambahkan',
+        );
       }
+    } catch (e) {
+      AppLogger.e('Error adding to cart', e);
+      AppSnackbar.error('Gagal menambahkan produk ke keranjang.', title: 'Gagal');
+    } finally {
+      isAddingToCart = false;
       update();
-      Get.snackbar('Success', 'Product added to cart');
-    } on DioException catch (e) {
-      isLoadingAddToCart = false;
-      update();
-      Get.snackbar('Error', 'Opps, something went wrong when adding to cart');
-      log(e.response!.data.toString());
     }
-  }
-
-  Future<void> onRefresh() async {
-    isLoading = true;
-    products = [];
-    await fetchAllFirst();
-    isLoading = false;
-    update();
   }
 }

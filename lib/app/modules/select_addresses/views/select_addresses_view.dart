@@ -1,158 +1,169 @@
-import 'package:cyber/app/modules/cart/controllers/cart_controller.dart';
-import 'package:cyber/app/routes/app_pages.dart';
-import 'package:cyber/helper/main.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/app_snackbar.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/empty_state_view.dart';
+import '../../../routes/app_pages.dart';
 import '../controllers/select_addresses_controller.dart';
 
 class SelectAddressesView extends GetView<SelectAddressesController> {
   const SelectAddressesView({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final SelectAddressesController selectAddressController =
-        Get.find<SelectAddressesController>();
-    final CartController cartController = Get.find<CartController>();
+    final SelectAddressesController controller = Get.find<SelectAddressesController>();
+
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Select Addresses'),
+        title: Text('Pilih Alamat Pengiriman', style: AppTextStyles.titleMedium),
         centerTitle: true,
+        backgroundColor: AppColors.surface,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () => Get.back(),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_location_alt_outlined, color: AppColors.textPrimary),
+            onPressed: () => Get.toNamed(Routes.CREATE_ADDRESS, arguments: {'isEdit': false}),
+          ),
+        ],
       ),
-      body: GetBuilder(
-        init: selectAddressController,
-        builder: (controller) {
-          return controller.isLoading
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
-              : controller.addresses.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset('assets/images/no_address.png'),
-                          Text('No Address Found'),
-                          SizedBox(height: 20),
-                          ElevatedButton(
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  WidgetStateProperty.all(Colors.black26),
-                            ),
-                            onPressed: () {
-                              Get.toNamed(Routes.CREATE_ADDRESS, arguments: {
-                                'isEdit': false,
-                              });
-                            },
-                            child: Text('Add Address',
-                                style: TextStyle(color: Colors.white)),
-                          ),
-                        ],
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          ListView.builder(
-                            itemCount: controller.addresses.length,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Text(controller.addresses[index].name),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "${controller.addresses[index].detail} ${controller.addresses[index].kelurahan} ${controller.addresses[index].kecamatan} ${controller.addresses[index].kabupaten} ${controller.addresses[index].provinsi}",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w400),
-                                    ),
-                                  ],
-                                ),
-                                leading: Radio(
-                                    value: controller.addresses[index].id,
-                                    groupValue: controller.currentAddressOption,
-                                    onChanged: (value) {
-                                      controller
-                                          .selectAddress(value.toString());
-                                    }),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-        },
-      ),
-      bottomNavigationBar: GetBuilder(
-        init: selectAddressController,
-        builder: (controller) {
-          return controller.addresses.isEmpty
-              ? SizedBox()
-              : Container(
-                  padding: const EdgeInsets.all(20),
+      body: GetBuilder<SelectAddressesController>(
+        init: controller,
+        builder: (ctrl) {
+          if (ctrl.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (ctrl.hasError) {
+            return EmptyStateView(
+              icon: Icons.wifi_off_rounded,
+              title: 'Gagal Memuat Alamat',
+              description: ctrl.errorMessage ?? 'Terjadi kendala saat menghubungkan ke server.',
+              buttonText: 'Coba Lagi',
+              onButtonPressed: () => ctrl.getAddress(),
+            );
+          }
+
+          if (ctrl.addresses.isEmpty) {
+            return EmptyStateView(
+              icon: Icons.location_off_outlined,
+              title: 'Belum Ada Alamat',
+              description: 'Tambahkan alamat pengiriman untuk melanjutkan pemesanan produk Apple Anda.',
+              buttonText: 'Tambah Alamat',
+              onButtonPressed: () => Get.toNamed(Routes.CREATE_ADDRESS, arguments: {'isEdit': false}),
+            );
+          }
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            itemCount: ctrl.addresses.length,
+            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+            itemBuilder: (context, index) {
+              final address = ctrl.addresses[index];
+              final isSelected = ctrl.currentAddressOption == address.id;
+
+              return InkWell(
+                borderRadius: AppSpacing.roundedXl,
+                onTap: () => ctrl.selectAddress(address.id),
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.surface,
+                    borderRadius: AppSpacing.roundedXl,
+                    border: Border.all(
+                      color: isSelected ? AppColors.primary : AppColors.border,
+                      width: isSelected ? 2 : 1,
+                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: const Offset(0, 3),
+                        color: AppColors.cardShadow,
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Subtotal',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            Helper.formatPrice(cartController.totalCart),
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (selectAddressController.currentAddressOption ==
-                              null) {
-                            Get.snackbar('Error', 'Please select address');
-                            return;
-                          }
-                          Get.toNamed(Routes.CHECKOUT);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 50),
-                          backgroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                      // Selection indicator
+                      Container(
+                        width: 22,
+                        height: 22,
+                        margin: const EdgeInsets.only(top: 2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: isSelected ? AppColors.primary : Colors.transparent,
+                          border: Border.all(
+                            color: isSelected ? AppColors.primary : AppColors.textTertiary,
+                            width: 2,
                           ),
                         ),
-                        child: const Text(
-                          'Next',
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                          ),
+                        child: isSelected
+                            ? const Icon(Icons.check_rounded, size: 14, color: AppColors.textLight)
+                            : null,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+
+                      // Address info
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              address.name,
+                              style: AppTextStyles.labelLarge.copyWith(fontWeight: FontWeight.w700),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              address.fullAddress,
+                              style: AppTextStyles.bodyMedium.copyWith(height: 1.4),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                );
+                ),
+              );
+            },
+          );
+        },
+      ),
+
+      // Bottom confirmation bar
+      bottomNavigationBar: GetBuilder<SelectAddressesController>(
+        builder: (ctrl) {
+          if (ctrl.addresses.isEmpty) return const SizedBox();
+
+          return Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              border: const Border(top: BorderSide(color: AppColors.border, width: 1)),
+            ),
+            child: SafeArea(
+              child: AppButton(
+                text: 'Pilih & Lanjut ke Pembayaran',
+                onPressed: () {
+                  if (ctrl.currentAddressOption == null) {
+                    AppSnackbar.warning('Silakan pilih alamat pengiriman terlebih dahulu.');
+                    return;
+                  }
+                  if (Get.previousRoute == Routes.CHECKOUT) {
+                    Get.back();
+                  } else {
+                    Get.toNamed(Routes.CHECKOUT);
+                  }
+                },
+              ),
+            ),
+          );
         },
       ),
     );

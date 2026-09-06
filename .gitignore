@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/release
 
 .env
+# Widget Preview related
+.widget_preview/
+devtools_options.yaml
+android/build/
+.gradle/
+**/android/.gradle/

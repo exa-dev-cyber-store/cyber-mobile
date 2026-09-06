@@ -1,32 +1,38 @@
-import 'dart:developer';
-
-import 'package:cyber/app/data/models/wilayah_model.dart';
-import 'package:cyber/app/modules/address/controllers/address_controller.dart';
-import 'package:cyber/app/modules/select_addresses/controllers/select_addresses_controller.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/app_snackbar.dart';
+import '../../../../data/models/wilayah_model.dart';
+import '../../../../data/repositories/address_repository.dart';
+import '../../../../data/repositories/wilayah_repository.dart';
+import '../../address/controllers/address_controller.dart';
+import '../../select_addresses/controllers/select_addresses_controller.dart';
 
 class CreateAddressController extends GetxController {
-  //TODO: Implement CreateAddressController
-  Dio dio = Dio();
+  final AddressRepository _addressRepo = AddressRepository();
+  final WilayahRepository _wilayahRepo = WilayahRepository();
 
-  TextEditingController nameController = TextEditingController();
-  TextEditingController provinceController = TextEditingController();
-  TextEditingController kotaController = TextEditingController();
-  TextEditingController kecController = TextEditingController();
-  TextEditingController kelController = TextEditingController();
-  TextEditingController detailController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController provinceController = TextEditingController();
+  final TextEditingController kotaController = TextEditingController();
+  final TextEditingController kecController = TextEditingController();
+  final TextEditingController kelController = TextEditingController();
+  final TextEditingController detailController = TextEditingController();
+
   List<WilayahModel> provinces = [];
   List<WilayahModel> kota = [];
   List<WilayahModel> kec = [];
   List<WilayahModel> kel = [];
+
+  WilayahModel? selectedProvince;
+  WilayahModel? selectedKota;
+  WilayahModel? selectedKec;
+  WilayahModel? selectedKel;
+
   bool isLoadingProvince = true;
-  bool isLoadingKota = true;
-  bool isLoadingKec = true;
-  bool isLoadingKel = true;
+  bool isLoadingKota = false;
+  bool isLoadingKec = false;
+  bool isLoadingKel = false;
   bool isSubmit = false;
 
   @override
@@ -43,111 +49,149 @@ class CreateAddressController extends GetxController {
     kecController.dispose();
     kelController.dispose();
     detailController.dispose();
+    super.onClose();
+  }
+
+  Future<void> onSelectProvince(WilayahModel item) async {
+    selectedProvince = item;
+    provinceController.text = item.name;
+    selectedKota = null;
+    selectedKec = null;
+    selectedKel = null;
+    kotaController.clear();
+    kecController.clear();
+    kelController.clear();
+    kota = [];
+    kec = [];
+    kel = [];
+    update();
+    await getKota(id: item.id);
+  }
+
+  Future<void> onSelectKota(WilayahModel item) async {
+    selectedKota = item;
+    kotaController.text = item.name;
+    selectedKec = null;
+    selectedKel = null;
+    kecController.clear();
+    kelController.clear();
+    kec = [];
+    kel = [];
+    update();
+    await getKec(id: item.id);
+  }
+
+  Future<void> onSelectKec(WilayahModel item) async {
+    selectedKec = item;
+    kecController.text = item.name;
+    selectedKel = null;
+    kelController.clear();
+    kel = [];
+    update();
+    await getKel(id: item.id);
+  }
+
+  void onSelectKel(WilayahModel item) {
+    selectedKel = item;
+    kelController.text = item.name;
+    update();
   }
 
   Future<void> createAddress() async {
-    String url = dotenv.env['BASE_URL']!;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (nameController.text.trim().isEmpty ||
+        provinceController.text.trim().isEmpty ||
+        kotaController.text.trim().isEmpty ||
+        kecController.text.trim().isEmpty ||
+        kelController.text.trim().isEmpty ||
+        detailController.text.trim().isEmpty) {
+      AppSnackbar.warning('Semua bidang alamat wajib diisi.');
+      return;
+    }
+
     isSubmit = true;
+    update();
+
     try {
-      var response = await dio.post(
-        "$url/api/delivery-addresses",
-        options: Options(
-          headers: {
-            "Authorization": "Bearer ${prefs.getString('token')}",
-          },
-        ),
-        data: {
-          "provinsi": provinceController.text,
-          "kabupaten": kotaController.text,
-          "kecamatan": kecController.text,
-          "kelurahan": kelController.text,
-          "detail": detailController.text,
-          "name": nameController.text
-        },
+      await _addressRepo.createAddress(
+        name: nameController.text.trim(),
+        provinsi: provinceController.text.trim(),
+        kabupaten: kotaController.text.trim(),
+        kecamatan: kecController.text.trim(),
+        kelurahan: kelController.text.trim(),
+        detail: detailController.text.trim(),
       );
-      if (response.statusCode == 201) {
-        if (Get.arguments != null) {
-          final SelectAddressesController selectAddressesController =
-              Get.find<SelectAddressesController>();
-          isSubmit = false;
-          await selectAddressesController.getAddress();
-        } else {
-          final AddressController addressController =
-              Get.find<AddressController>();
-          await addressController.getAddress();
-        }
-        Get.back();
+
+      // Refresh listeners
+      if (Get.isRegistered<SelectAddressesController>()) {
+        await Get.find<SelectAddressesController>().getAddress();
       }
+      if (Get.isRegistered<AddressController>()) {
+        await Get.find<AddressController>().getAddress();
+      }
+
+      Get.back();
+      AppSnackbar.success('Alamat baru berhasil ditambahkan.');
     } catch (e) {
-      log(e.toString());
+      AppLogger.e('Error creating address', e);
+      AppSnackbar.error('Terjadi kesalahan saat menyimpan alamat.');
+    } finally {
+      isSubmit = false;
+      update();
     }
   }
 
   Future<void> getProvinces() async {
+    isLoadingProvince = true;
+    update();
     try {
-      isLoadingProvince = true;
-      update();
-      final response = await dio.get(
-          'https://exa31.github.io/api-wilayah-indonesia/api/provinces.json');
-
-      final List<dynamic> data = response.data;
-      provinces = List.from(data.map((e) => WilayahModel.fromJson(e)));
-      update();
+      provinces = await _wilayahRepo.getProvinces();
     } catch (e) {
-      log(e.toString());
+      AppLogger.e('Error fetching provinces', e);
     } finally {
       isLoadingProvince = false;
       update();
     }
   }
 
-  Future<void> getKota({required id}) async {
-    try {
-      isLoadingKota = true;
-      update();
-      final response = await dio.get(
-          'https://exa31.github.io/api-wilayah-indonesia/api/regencies/$id.json');
+  Future<void> getKota({required String id}) async {
+    isLoadingKota = true;
+    kota = [];
+    update();
 
-      final List<dynamic> data = response.data;
-      kota = List.from(data.map((e) => WilayahModel.fromJson(e)));
-      update();
+    try {
+      kota = await _wilayahRepo.getRegencies(id);
     } catch (e) {
-      log(e.toString());
+      AppLogger.e('Error fetching regencies', e);
     } finally {
       isLoadingKota = false;
       update();
     }
   }
 
-  Future<void> getKec({required id}) async {
+  Future<void> getKec({required String id}) async {
+    isLoadingKec = true;
+    kec = [];
+    update();
+
     try {
-      isLoadingKec = true;
-      update();
-      final response = await dio.get(
-          'https://exa31.github.io/api-wilayah-indonesia/api/districts/$id.json');
-      final List<dynamic> data = response.data;
-      kec = List.from(data.map((e) => WilayahModel.fromJson(e)));
-      update();
+      kec = await _wilayahRepo.getDistricts(id);
     } catch (e) {
-      log(e.toString());
+      AppLogger.e('Error fetching districts', e);
     } finally {
       isLoadingKec = false;
       update();
     }
   }
 
-  Future<void> getKel({required id}) async {
+  Future<void> getKel({required String id}) async {
+    isLoadingKel = true;
+    kel = [];
+    update();
+
     try {
-      isLoadingKel = true;
-      update();
-      final response = await dio.get(
-          'https://exa31.github.io/api-wilayah-indonesia/api/villages/$id.json');
-      final List<dynamic> data = response.data;
-      kel = List.from(data.map((e) => WilayahModel.fromJson(e)));
-      update();
+      kel = await _wilayahRepo.getVillages(id);
     } catch (e) {
-      log(e.toString());
+      AppLogger.e('Error fetching villages', e);
     } finally {
       isLoadingKel = false;
       update();

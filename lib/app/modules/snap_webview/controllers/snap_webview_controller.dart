@@ -1,42 +1,47 @@
-import 'dart:developer';
-
-import 'package:cyber/app/routes/app_pages.dart';
 import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../routes/app_pages.dart';
 
 class SnapWebviewController extends GetxController {
-  //TODO: Implement SnapWebviewController
   WebViewController? webViewController;
+  final progress = 0.0.obs;
 
   @override
   void onInit() {
     super.onInit();
-    var redirectUrl = Get.arguments['redirectUrl'];
+    final redirectUrl = Get.arguments?['redirectUrl']?.toString() ?? '';
+    _initWebview(redirectUrl);
+  }
+
+  void _initWebview(String redirectUrl) {
+    if (redirectUrl.isEmpty) {
+      Get.back();
+      return;
+    }
+
     webViewController = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
-          onProgress: (int progress) {
-            // Update loading bar.
+          onProgress: (int p) {
+            progress.value = p / 100.0;
           },
           onPageStarted: (String url) {
-            if (!url.contains("midtrans")) {
-              Get.offNamed(Routes.HOME);
+            AppLogger.d('Webview page started: $url');
+            if (url.contains('/finish') || url.contains('/success')) {
+              Get.offAllNamed(Routes.HOME);
+              Get.toNamed(Routes.ORDER_HISTORY);
             }
           },
           onPageFinished: (String url) {
-            log('Page finished loading: $url');
+            AppLogger.d('Webview page finished: $url');
           },
-          onHttpError: (HttpResponseError error) {},
-          onWebResourceError: (WebResourceError error) {},
-          onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith('https://www.youtube.com/')) {
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
+          onWebResourceError: (WebResourceError error) {
+            AppLogger.w('Webview resource error: ${error.description}');
           },
         ),
       )
-      ..loadRequest(Uri.parse('$redirectUrl'));
+      ..loadRequest(Uri.parse(redirectUrl));
   }
 }

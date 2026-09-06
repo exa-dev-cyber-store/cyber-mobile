@@ -1,68 +1,71 @@
-import 'package:cyber/app/modules/home/controllers/home_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import 'app/modules/home/controllers/home_controller.dart';
 import 'app/routes/app_pages.dart';
+import 'core/constants/app_theme.dart';
+import 'core/network/api_client.dart';
+import 'core/storage/local_storage.dart';
+import 'core/utils/app_logger.dart';
 
 Future<void> main() async {
-  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  ErrorWidget.builder = (FlutterErrorDetails details) {
-    return Container(
-      color: Colors.white,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              "Error appeared.",
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 24,
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Reload the current route
-                Get.offAllNamed(Routes.HOME);
-              },
-              child: Text("Refresh"),
-            ),
-          ],
-        ),
-      ),
-    );
-  };
-  await dotenv.load(fileName: ".env");
-  final String initialRoute = await determineInitialRoute();
-
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  Future.delayed(Duration(seconds: 3), () {
+
+  // Set preferred orientations
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
+  // Load environment variables (.env)
+  try {
+    await dotenv.load(fileName: '.env');
+  } catch (e) {
+    AppLogger.w('Failed to load .env file: $e');
+  }
+
+  // Initialize Storage and Network API Client
+  final storage = await LocalStorageService.getInstance();
+  await ApiClient.initialize(storage);
+
+  final initialRoute = determineInitialRoute(storage);
+
+  // Remove splash after short delay
+  Future.delayed(const Duration(milliseconds: 800), () {
     FlutterNativeSplash.remove();
   });
 
-  runApp(
-    GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "Application",
-      initialRoute: initialRoute,
-      getPages: AppPages.routes,
-    ),
-  );
+  runApp(CyberStoreApp(initialRoute: initialRoute));
 }
 
-Future<String> determineInitialRoute() async {
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? token = prefs.getString('token');
-  // bool valid = await AuthController.validToken();
-  if (token != null && token.isNotEmpty) {
+String determineInitialRoute(LocalStorageService storage) {
+  if (storage.hasToken) {
+    AppLogger.i('Existing session found. Launching Home.');
     Get.put(HomeController(), permanent: true);
     return Routes.HOME;
   } else {
+    AppLogger.i('No active session. Launching Onboarding.');
     return Routes.ONBOARDING;
+  }
+}
+
+class CyberStoreApp extends StatelessWidget {
+  final String initialRoute;
+
+  const CyberStoreApp({super.key, required this.initialRoute});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      title: 'Cyber Store - Apple Official Reseller',
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.lightTheme,
+      initialRoute: initialRoute,
+      getPages: AppPages.routes,
+      defaultTransition: Transition.cupertino,
+      transitionDuration: const Duration(milliseconds: 250),
+    );
   }
 }

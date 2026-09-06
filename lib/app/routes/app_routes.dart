@@ -15,8 +15,13 @@ class Routes {
   static const SELECT_ADDRESSES = '/select-addresses';
   static const CHECKOUT = '/checkout';
   static const SNAP_WEBVIEW = '/snap-webview';
+  static const PAYMENT_DETAIL = '/payment-detail';
   static const ORDER_HISTORY = '/order-history';
 
   static const INVOICE = '/invoice/:id';
   static const SEARCH_PRODUCT = '/search-product';
+
+  static String invoice(String id) => '/invoice/$id';
+  static String detailProduct(String id) => '/detail-product/$id';
+  static String editAddress(String id) => '/edit-address/$id';
 }

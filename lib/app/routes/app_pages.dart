@@ -28,6 +28,8 @@ import '../modules/search_product/bindings/search_product_binding.dart';
 import '../modules/search_product/views/search_product_view.dart';
 import '../modules/select_addresses/bindings/select_addresses_binding.dart';
 import '../modules/select_addresses/views/select_addresses_view.dart';
+import '../modules/payment_detail/bindings/payment_detail_binding.dart';
+import '../modules/payment_detail/views/payment_detail_view.dart';
 import '../modules/snap_webview/bindings/snap_webview_binding.dart';
 import '../modules/snap_webview/views/snap_webview_view.dart';
 
@@ -121,6 +123,11 @@ class AppPages {
       name: Routes.SNAP_WEBVIEW,
       page: () => const SnapWebviewView(),
       binding: SnapWebviewBinding(),
+    ),
+    GetPage(
+      name: Routes.PAYMENT_DETAIL,
+      page: () => const PaymentDetailView(),
+      binding: PaymentDetailBinding(),
     ),
     GetPage(
       name: Routes.ORDER_HISTORY,

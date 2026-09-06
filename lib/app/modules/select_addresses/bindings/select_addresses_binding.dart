@@ -7,6 +7,7 @@ class SelectAddressesBinding extends Bindings {
   void dependencies() {
     Get.lazyPut<SelectAddressesController>(
       () => SelectAddressesController(),
+      fenix: true,
     );
   }
 }

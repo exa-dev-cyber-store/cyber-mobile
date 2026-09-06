@@ -1,191 +1,365 @@
-import 'package:cyber/app/modules/detail_product/controllers/detail_product_controller.dart';
-import 'package:cyber/app/modules/detail_product/widget/detail_product_widget.dart';
-import 'package:cyber/app/modules/home/controllers/home_controller.dart';
-import 'package:cyber/app/modules/home/widget/card_product_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:readmore/readmore.dart';
-
-import '../widget/list_image_preview_widget.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_image.dart';
+import '../../../routes/app_pages.dart';
+import '../../home/controllers/home_controller.dart';
+import '../../home/widget/card_product_widget.dart';
+import '../controllers/detail_product_controller.dart';
+import '../widgets/detail_product_skeleton.dart';
 
 class DetailProductView extends StatelessWidget {
-  DetailProductView({
-    super.key,
-  });
+  DetailProductView({super.key});
 
-  final url = dotenv.env['BASE_URL'].toString();
-
-  final DetailProductController detailProductController =
-      Get.find<DetailProductController>();
-  final HomeController homeController = Get.find<HomeController>();
+  final DetailProductController controller = Get.find<DetailProductController>();
 
   @override
   Widget build(BuildContext context) {
+    final homeController = Get.isRegistered<HomeController>() ? Get.find<HomeController>() : null;
+
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await detailProductController.onRefresh();
-        },
-        child: GetBuilder<DetailProductController>(
-          init: detailProductController,
-          builder: (controller) => controller.isLoading
-              ? Center(
-                  child: CircularProgressIndicator(),
-                )
-              : SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  controller: controller.scroll,
-                  child: Column(
-                    children: [
-                      Stack(
-                        children: [
-                          Image.network(
-                            "$url/images/${controller.activeImage}",
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                'assets/images/no_image.jpg',
-                                width: double.infinity,
-                                height: 350,
-                                fit: BoxFit.cover,
-                              );
-                            },
-                            width: double.infinity,
-                            height: 350,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Get.back();
-                            },
-                            child: Container(
-                              margin: EdgeInsets.only(top: 30, left: 10),
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(100),
-                              ),
-                              child: Icon(
-                                Icons.arrow_back,
-                                size: 30,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: AppColors.surface,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () => Get.back(),
+        ),
+        title: Text('Detail Produk', style: AppTextStyles.titleSmall),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_bag_outlined, color: AppColors.textPrimary),
+            onPressed: () => Get.toNamed(Routes.CART),
+          ),
+        ],
+      ),
+      body: GetBuilder<DetailProductController>(
+        builder: (ctrl) {
+          if (ctrl.isLoading) {
+            return const DetailProductSkeleton();
+          }
+
+          final product = ctrl.product;
+          if (product == null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xxl),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.inventory_2_outlined,
+                      size: 64,
+                      color: AppColors.textTertiary,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      'Produk Tidak Ditemukan',
+                      style: AppTextStyles.titleMedium,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      'Produk mungkin telah dihapus atau tidak tersedia.',
+                      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    AppButton(
+                      text: 'Kembali',
+                      variant: AppButtonVariant.outline,
+                      onPressed: () => Get.back(),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(bottom: 120),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Main Product Image Viewer
+                Container(
+                  width: double.infinity,
+                  height: 320,
+                  color: AppColors.surface,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.xxl),
+                      child: AppImage(
+                        imageUrl: ctrl.activeImage,
+                        fit: BoxFit.contain,
                       ),
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            DetailProduct(
-                              detailProductController: controller,
-                            ),
-                            SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(
-                                controller.imageDetails!.length,
-                                (index) {
-                                  return ListImagePreview(
-                                    index: index,
-                                    detailProductController: controller,
-                                  );
-                                },
-                              ),
-                            ),
-                            SizedBox(height: 15),
-                            Text(
-                              "Description",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            ReadMoreText(
-                              controller.product!.description,
-                              trimLines: 3,
-                              trimMode: TrimMode.Line,
-                              moreStyle: TextStyle(
-                                fontSize: 16,
-                                color: Colors.blue,
-                              ),
-                              lessStyle: TextStyle(
-                                fontSize: 16,
-                                color: Colors.blue,
-                              ),
-                              style: TextStyle(
-                                fontSize: 16,
-                              ),
-                            ),
-                            SizedBox(height: 15),
-                            Text(
-                              "Another Products",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            // Bungkus GridView.builder dengan Container dan atur tinggi
-                            GridView.count(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 10,
-                              mainAxisSpacing: 10,
-                              children: List.generate(
-                                controller.products.length,
-                                (index) => CardProductWidget(
-                                  homeController: homeController,
-                                  like: homeController.listLikes.any(
-                                      (product) =>
-                                          product.id ==
-                                          controller.products[index].id),
-                                  imageThumbnail:
-                                      controller.products[index].imageThumbnail,
-                                  id: controller.products[index].id,
-                                  name: controller.products[index].name,
-                                  price: controller.products[index].price,
+                    ),
+                  ),
+                ),
+
+                // Multi-Angle Image Thumbnails
+                if (ctrl.allImages.length > 1)
+                  Container(
+                    color: AppColors.surface,
+                    padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                    child: Center(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: ctrl.allImages.map((img) {
+                            final isSelected = ctrl.activeImage == img;
+                            return GestureDetector(
+                              onTap: () => ctrl.setActiveImage(img),
+                              child: Container(
+                                width: 56,
+                                height: 56,
+                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceSecondary,
+                                  borderRadius: AppSpacing.roundedMd,
+                                  border: Border.all(
+                                    color: isSelected ? AppColors.primary : AppColors.border,
+                                    width: isSelected ? 2 : 1,
+                                  ),
+                                ),
+                                child: AppImage(
+                                  imageUrl: img,
+                                  fit: BoxFit.contain,
                                 ),
                               ),
-                            ),
-                          ],
+                            );
+                          }).toList(),
                         ),
                       ),
-                      Center(
-                        child: controller.isLoadingEnd
-                            ? CircularProgressIndicator()
-                            : SizedBox(),
+                    ),
+                  ),
+
+                const SizedBox(height: AppSpacing.md),
+
+                // Product Title, Price & Highlights Card
+                Container(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  color: AppColors.surface,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Category Tag
+                      if (product.category.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withValues(alpha: 0.1),
+                            borderRadius: AppSpacing.roundedPill,
+                          ),
+                          child: Text(
+                            product.category.toUpperCase(),
+                            style: AppTextStyles.labelSmall.copyWith(
+                              color: AppColors.accent,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                        ),
+                      const SizedBox(height: AppSpacing.sm),
+
+                      // Name
+                      Text(
+                        product.name,
+                        style: AppTextStyles.titleLarge,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+
+                      // Price
+                      Text(
+                        CurrencyFormatter.format(product.price),
+                        style: AppTextStyles.priceLarge.copyWith(color: AppColors.primary),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+
+                      // Highlights Badges
+                      Row(
+                        children: [
+                          _buildBadge(Icons.verified_rounded, 'Garansi 1 Tahun'),
+                          const SizedBox(width: AppSpacing.sm),
+                          _buildBadge(Icons.local_shipping_outlined, 'Bebas Ongkir'),
+                          const SizedBox(width: AppSpacing.sm),
+                          _buildBadge(Icons.security_rounded, '100% Original'),
+                        ],
                       ),
                     ],
                   ),
                 ),
-        ),
-      ),
-      bottomNavigationBar: GetBuilder(
-        init: detailProductController,
-        builder: (controller) => controller.isLoading
-            ? SizedBox()
-            : SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (controller.isLoadingAddToCart) return;
-                    await controller.addToCart(id: controller.product!.id);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0)),
-                    padding: EdgeInsets.symmetric(vertical: 15),
+
+                const SizedBox(height: AppSpacing.md),
+
+                // Description Card
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  color: AppColors.surface,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Deskripsi Produk', style: AppTextStyles.titleSmall),
+                      const SizedBox(height: AppSpacing.md),
+                      ReadMoreText(
+                        product.description.isEmpty ? 'Tidak ada deskripsi tersedia.' : product.description,
+                        trimLines: 4,
+                        trimMode: TrimMode.Line,
+                        trimCollapsedText: ' Selengkapnya',
+                        trimExpandedText: ' Lebih Sedikit',
+                        moreStyle: AppTextStyles.labelMedium.copyWith(color: AppColors.accent),
+                        lessStyle: AppTextStyles.labelMedium.copyWith(color: AppColors.accent),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          height: 1.6,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
                   ),
-                  child: Text("Add to Cart",
-                      style: TextStyle(fontSize: 18, color: Colors.white)),
                 ),
+
+                // Related Products Section
+                if (ctrl.relatedProducts.isNotEmpty && homeController != null) ...[
+                  const SizedBox(height: AppSpacing.md),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    color: AppColors.surface,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Produk Terkait', style: AppTextStyles.titleSmall),
+                        const SizedBox(height: AppSpacing.lg),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: AppSpacing.md,
+                            mainAxisSpacing: AppSpacing.md,
+                            childAspectRatio: 0.72,
+                          ),
+                          itemCount: ctrl.relatedProducts.length,
+                          itemBuilder: (context, index) {
+                            final related = ctrl.relatedProducts[index];
+                            final isLiked = homeController.isProductLiked(related.id);
+                            return CardProductWidget(
+                              id: related.id,
+                              imageThumbnail: related.imageThumbnail,
+                              name: related.name,
+                              price: related.price,
+                              category: related.category,
+                              like: isLiked,
+                              homeController: homeController,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+
+      // Sticky Bottom CTA Bar
+      bottomNavigationBar: GetBuilder<DetailProductController>(
+        builder: (ctrl) {
+          if (ctrl.isLoading) return const DetailProductBottomBarSkeleton();
+          if (ctrl.product == null) return const SizedBox.shrink();
+
+          return Container(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              border: const Border(top: BorderSide(color: AppColors.border, width: 1)),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.cardShadow,
+                  blurRadius: 16,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  // Total price display
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Harga Satuan', style: AppTextStyles.bodySmall),
+                        const SizedBox(height: 2),
+                        Text(
+                          CurrencyFormatter.format(ctrl.product!.price),
+                          style: AppTextStyles.titleMedium.copyWith(
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.4,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+
+                  // Add to cart button
+                  Expanded(
+                    flex: 3,
+                    child: AppButton(
+                      text: 'Tambah Keranjang',
+                      prefixIcon: const Icon(Icons.add_shopping_cart_rounded, size: 18, color: AppColors.textLight),
+                      isLoading: ctrl.isAddingToCart,
+                      onPressed: () => ctrl.addToCart(),
+                    ),
+                  ),
+                ],
               ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBadge(IconData icon, String text) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceTertiary,
+          borderRadius: AppSpacing.roundedSm,
+        ),
+        child: Column(
+          children: [
+            Icon(icon, size: 18, color: AppColors.textSecondary),
+            const SizedBox(height: 4),
+            Text(
+              text,
+              style: AppTextStyles.labelSmall.copyWith(
+                fontSize: 10,
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }

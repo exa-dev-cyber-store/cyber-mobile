@@ -1,56 +1,92 @@
-import 'dart:developer';
-
-import 'package:cyber/app/data/models/invoice_model.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:printing/printing.dart';
+import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/app_snackbar.dart';
+import '../../../../core/utils/invoice_pdf_service.dart';
+import '../../../../data/models/invoice_model.dart';
+import '../../../../data/repositories/invoice_repository.dart';
 
 class InvoiceController extends GetxController {
-  //TODO: Implement InvoiceController
+  final InvoiceRepository _invoiceRepo = InvoiceRepository();
+
   InvoiceModel? invoice;
-  Dio dio = Dio();
-  int subtotal = 0;
   bool loading = true;
-  DateTime? createdAt;
-  DateTime? updatedAt;
-  String? formattedDate;
+  String invoiceId = '';
 
   @override
   void onInit() {
     super.onInit();
+    final args = Get.arguments;
+    if (args is Map && args['orderId'] != null) {
+      invoiceId = args['orderId'].toString();
+    } else {
+      final paramId = Get.parameters['id']?.toString() ?? '';
+      if (paramId.isNotEmpty && paramId != ':id') {
+        invoiceId = paramId;
+      }
+    }
     getInvoice();
   }
 
   Future<void> getInvoice() async {
+    if (invoiceId.isEmpty || invoiceId == ':id') {
+      loading = false;
+      update();
+      AppSnackbar.error('ID Pesanan tidak valid atau tidak ditemukan.', title: 'Invoice Tidak Ditemukan');
+      return;
+    }
+
+    loading = true;
+    update();
+
     try {
-      String url = dotenv.env['BASE_URL']!;
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String token = prefs.getString('token')!;
-      String param = Get.parameters['id']!;
-      var response = await dio.get(
-        '$url/api/invoices/$param',
-        options: Options(headers: {
-          'Authorization': 'Bearer $token',
-        }),
+      invoice = await _invoiceRepo.getInvoice(invoiceId);
+    } catch (e) {
+      AppLogger.e('Error loading invoice', e);
+      AppSnackbar.error(e, title: 'Gagal Memuat Invoice');
+    } finally {
+      loading = false;
+      update();
+    }
+  }
+
+  bool isPrinting = false;
+
+  Future<void> printInvoice() async {
+    if (invoice == null || isPrinting) return;
+
+    isPrinting = true;
+    update();
+
+    try {
+      await InvoicePdfService.printInvoice(invoice!);
+    } catch (e) {
+      AppLogger.e('Error printing invoice', e);
+      AppSnackbar.error('Gagal memproses dokumen cetak invoice.', title: 'Cetak Gagal');
+    } finally {
+      isPrinting = false;
+      update();
+    }
+  }
+
+  Future<void> shareInvoice() async {
+    if (invoice == null || isPrinting) return;
+
+    isPrinting = true;
+    update();
+
+    try {
+      final pdfBytes = await InvoicePdfService.generateInvoicePdf(invoice!);
+      await Printing.sharePdf(
+        bytes: pdfBytes,
+        filename: 'Invoice_${invoice!.order.id}.pdf',
       );
-      if (response.statusCode == 200) {
-        invoice = InvoiceModel.fromJson(response.data);
-        subtotal = invoice!.total - invoice!.tax - invoice!.shipping;
-        createdAt = DateTime.parse(invoice!.order.createdAt);
-        updatedAt = DateTime.parse(invoice!.order.updatedAt);
-        if (createdAt != null && updatedAt != null) {
-          formattedDate = DateFormat('dd MMMM yyyy').format(
-            createdAt == updatedAt ? createdAt! : updatedAt!,
-          );
-        }
-        loading = false;
-        update();
-      }
-    } on DioException catch (e) {
-      log(e.response!.data.toString());
-      Get.back();
+    } catch (e) {
+      AppLogger.e('Error sharing invoice', e);
+      AppSnackbar.error('Gagal membagikan dokumen invoice.', title: 'Gagal Berbagi');
+    } finally {
+      isPrinting = false;
+      update();
     }
   }
 }

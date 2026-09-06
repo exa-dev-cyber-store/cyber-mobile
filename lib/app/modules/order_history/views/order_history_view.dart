@@ -1,125 +1,173 @@
-import 'package:cyber/helper/main.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/utils/currency_formatter.dart';
+import '../../../../core/utils/date_formatter.dart';
+import '../../../../core/widgets/empty_state_view.dart';
+import '../../../../core/widgets/status_badge.dart';
+import '../../../routes/app_pages.dart';
 import '../controllers/order_history_controller.dart';
 
 class OrderHistoryView extends GetView<OrderHistoryController> {
   const OrderHistoryView({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final OrderHistoryController orderController =
-        Get.find<OrderHistoryController>();
+    final OrderHistoryController orderController = Get.find<OrderHistoryController>();
+
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Order History'),
+        title: Text('Riwayat Pesanan', style: AppTextStyles.titleMedium),
         centerTitle: true,
+        backgroundColor: AppColors.surface,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () => Get.back(),
+        ),
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          orderController.onInit();
-        },
-        child: SingleChildScrollView(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Text(
-                  "Order History",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                ),
-                const SizedBox(height: 20),
-                GetBuilder(
-                  init: orderController,
-                  builder: (controller) {
-                    return controller.orders.isEmpty && !controller.loading
-                        ? Center(
-                            child: Text("No Orders"),
-                          )
-                        : ListView.separated(
-                            itemCount: controller.orders.length,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            separatorBuilder: (context, index) {
-                              return const SizedBox(height: 30);
-                            },
-                            itemBuilder: (context, index) {
-                              final order = controller.orders[index];
-                              final createdAt = DateTime.parse(order.createdAt);
-                              final updatedAt = DateTime.parse(order.updatedAt);
-                              final formattedDate =
-                                  DateFormat('dd MMMM yyyy').format(
-                                createdAt == updatedAt ? createdAt : updatedAt,
-                              );
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        formattedDate,
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      Text(
-                                        Helper.formatPrice(order.total),
-                                      ),
-                                    ],
+        color: AppColors.primary,
+        onRefresh: () => orderController.getOrders(),
+        child: GetBuilder<OrderHistoryController>(
+          init: orderController,
+          builder: (controller) {
+            if (controller.loading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (controller.orders.isEmpty) {
+              return EmptyStateView(
+                icon: Icons.receipt_long_outlined,
+                title: 'Belum Ada Pesanan',
+                description: 'Anda belum pernah melakukan pemesanan produk. Ayo mulai belanja!',
+                buttonText: 'Mulai Belanja',
+                onButtonPressed: () => Get.offNamed(Routes.HOME),
+              );
+            }
+
+            return ListView.separated(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              itemCount: controller.orders.length,
+              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+              itemBuilder: (context, index) {
+                final order = controller.orders[index];
+                return Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: AppSpacing.roundedXl,
+                    border: Border.all(color: AppColors.border),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.cardShadow,
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header: Date & Status Badge
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.calendar_today_outlined, size: 14, color: AppColors.textTertiary),
+                              const SizedBox(width: AppSpacing.xs),
+                              Text(
+                                DateFormatter.formatShort(order.createdAt),
+                                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                              ),
+                            ],
+                          ),
+                          StatusBadge(status: order.statusPayment),
+                        ],
+                      ),
+                      const Divider(height: 20),
+
+                      // Order Items Summary
+                      if (order.orderItems.isNotEmpty) ...[
+                        Text(
+                          order.orderItems.first.name,
+                          style: AppTextStyles.labelLarge.copyWith(fontWeight: FontWeight.w700),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          order.orderItems.length > 1
+                              ? '${order.orderItems.first.quantity} item • +${order.orderItems.length - 1} produk lainnya'
+                              : '${order.orderItems.first.quantity} item',
+                          style: AppTextStyles.bodySmall,
+                        ),
+                      ],
+                      const SizedBox(height: AppSpacing.md),
+
+                      // Footer: Price & Invoice Button
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Total Belanja', style: AppTextStyles.bodySmall),
+                              Text(
+                                CurrencyFormatter.format(order.total),
+                                style: AppTextStyles.price.copyWith(fontSize: 15),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              OutlinedButton(
+                                onPressed: () => Get.toNamed('/invoice/${order.id}'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: AppColors.textPrimary,
+                                  minimumSize: const Size(80, 36),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedPill),
+                                  side: const BorderSide(color: AppColors.border),
+                                ),
+                                child: Text(
+                                  'Invoice',
+                                  style: AppTextStyles.labelSmall,
+                                ),
+                              ),
+                              if (order.statusPayment.toLowerCase() == 'pending') ...[
+                                const SizedBox(width: AppSpacing.sm),
+                                ElevatedButton(
+                                  onPressed: () => controller.payPendingOrder(order),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.accent,
+                                    foregroundColor: AppColors.textLight,
+                                    minimumSize: const Size(80, 36),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                                    shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedPill),
                                   ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    "${order.orderItems.length} items",
-                                    style: TextStyle(
-                                        fontSize: 12, color: Colors.grey),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Get.toNamed(
-                                          '/invoice/${order.id}',
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        shape: RoundedRectangleBorder(
-                                          side: BorderSide(color: Colors.black),
-                                          borderRadius:
-                                              BorderRadius.circular(50),
-                                        ),
-                                      ),
-                                      child: Text("View Invoice"),
+                                  child: Text(
+                                    'Bayar',
+                                    style: AppTextStyles.labelSmall.copyWith(
+                                      color: AppColors.textLight,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                ],
-                              );
-                            },
-                          );
-                  },
-                ),
-                GetBuilder(
-                    init: orderController,
-                    builder: (controller) {
-                      return controller.loading
-                          ? Column(
-                              children: [
-                                const SizedBox(height: 100),
-                                Center(
-                                  child: CircularProgressIndicator(),
                                 ),
                               ],
-                            )
-                          : SizedBox();
-                    }),
-              ],
-            ),
-          ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
     );

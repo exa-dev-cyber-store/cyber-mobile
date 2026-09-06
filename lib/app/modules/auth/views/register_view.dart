@@ -1,232 +1,180 @@
-import 'package:cyber/app/modules/auth/controllers/auth_controller.dart';
-import 'package:cyber/app/routes/app_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_spacing.dart';
+import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../routes/app_pages.dart';
+import '../controllers/auth_controller.dart';
 
-class RegisterView extends StatelessWidget {
+class RegisterView extends GetView<AuthController> {
   RegisterView({super.key});
 
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _passwordConfirmController =
-      TextEditingController();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _passwordConfirmController = TextEditingController();
 
-  final loginController = Get.find<AuthController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 50),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 100,
-            ),
-            Center(
-              child: Image.asset(
-                'assets/images/1024.png',
-                width: 200,
-              ),
-            ),
-            SizedBox(
-              height: 100,
-            ),
-            Form(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () => Get.back(),
+        ),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl, vertical: AppSpacing.lg),
+            child: Form(
               key: _formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                        labelText: 'Name',
-                        prefixIcon: Icon(Icons.person),
-                        hintText: 'Enter your name',
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10))),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (value.length < 3) {
-                        return 'Name must be at least 3 characters';
-                      }
-                      return null;
-                    },
+                  Text(
+                    'Buat Akun Baru',
+                    style: AppTextStyles.displayMedium,
+                    textAlign: TextAlign.center,
                   ),
-                  SizedBox(
-                    height: 40,
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Daftar untuk mulai memesan perangkat Apple impian Anda',
+                    style: AppTextStyles.bodyMedium,
+                    textAlign: TextAlign.center,
                   ),
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.email),
-                        hintText: 'Enter your email',
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10))),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
-                      }
-                      if (!GetUtils.isEmail(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  GetBuilder(
-                    init: loginController,
-                    builder: (controller) {
-                      return TextFormField(
-                        controller: _passwordController,
-                        obscureText: loginController.isObscuredPassword,
-                        decoration: InputDecoration(
-                            labelText: 'Password',
-                            prefixIcon: Icon(Icons.lock),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                loginController.isObscuredPassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                              ),
-                              onPressed: () {
-                                loginController.changeObesecured();
-                              },
-                            ),
-                            hintText: 'Enter your password',
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10))),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          if (value.length < 8) {
-                            return 'Password must be at least 8 characters';
-                          }
-                          return null;
-                        },
-                      );
-                    },
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  GetBuilder(
-                    init: loginController,
-                    builder: (controller) {
-                      return TextFormField(
-                        controller: _passwordConfirmController,
-                        obscureText: loginController.isObscuredPasswordConfirm,
-                        decoration: InputDecoration(
-                            labelText: 'Confirm Password',
-                            prefixIcon: Icon(Icons.lock),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                loginController.isObscuredPassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                              ),
-                              onPressed: () {
-                                loginController.changeObesecuredConfirm();
-                              },
-                            ),
-                            hintText: 'Enter your password',
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10))),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          return null;
-                        },
-                      );
-                    },
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color.fromARGB(255, 255, 255, 255),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
-                            color: Colors.black,
+                  const SizedBox(height: AppSpacing.xxl),
+
+                  // Form Container
+                  Container(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: AppSpacing.roundedXl,
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Column(
+                      children: [
+                        AppTextField(
+                          controller: _nameController,
+                          label: 'Nama Lengkap',
+                          hint: 'Contoh: John Doe',
+                          prefixIcon: const Icon(Icons.person_outline_rounded, color: AppColors.textSecondary, size: 20),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Silakan masukkan nama lengkap';
+                            }
+                            if (value.trim().length < 3) {
+                              return 'Nama minimal 3 karakter';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        AppTextField(
+                          controller: _emailController,
+                          label: 'Email',
+                          hint: 'nama@domain.com',
+                          keyboardType: TextInputType.emailAddress,
+                          prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textSecondary, size: 20),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Silakan masukkan email';
+                            }
+                            if (!GetUtils.isEmail(value.trim())) {
+                              return 'Format email tidak valid';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        Obx(
+                          () => AppTextField(
+                            controller: _passwordController,
+                            label: 'Kata Sandi',
+                            hint: 'Minimal 8 karakter',
+                            isPassword: controller.isObscuredPassword.value,
+                            prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppColors.textSecondary, size: 20),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Silakan masukkan kata sandi';
+                              }
+                              if (value.length < 8) {
+                                return 'Kata sandi minimal 8 karakter';
+                              }
+                              return null;
+                            },
                           ),
                         ),
-                      ),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          if (_passwordController.text !=
-                              _passwordConfirmController.text) {
-                            Get.snackbar('Error', 'Password not match');
-                            return;
-                          }
-                          loginController.createAccount(
-                              email: _emailController.text,
-                              name: _nameController.text,
-                              password: _passwordController.text);
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Text('Register',
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700)),
-                      ),
+                        const SizedBox(height: AppSpacing.lg),
+                        Obx(
+                          () => AppTextField(
+                            controller: _passwordConfirmController,
+                            label: 'Konfirmasi Kata Sandi',
+                            hint: 'Ulangi kata sandi',
+                            isPassword: controller.isObscuredConfirm.value,
+                            prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppColors.textSecondary, size: 20),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Konfirmasi kata sandi wajib diisi';
+                              }
+                              if (value != _passwordController.text) {
+                                return 'Kata sandi tidak cocok';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.xl),
+                        Obx(
+                          () => AppButton(
+                            text: 'Daftar Sekarang',
+                            isLoading: controller.isLoading.value,
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                controller.register(
+                                  name: _nameController.text,
+                                  email: _emailController.text,
+                                  password: _passwordController.text,
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 50),
+                  const SizedBox(height: AppSpacing.xxl),
+
+                  // Back to login footer
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Sudah punya akun? ',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w400,
-                        ),
+                        'Sudah memiliki akun? ',
+                        style: AppTextStyles.bodyMedium,
                       ),
                       InkWell(
-                        onTap: () {
-                          Get.offNamed(Routes.LOGIN);
-                        },
+                        onTap: () => Get.offNamed(Routes.LOGIN),
                         child: Text(
-                          ' Masuk',
-                          style: TextStyle(
-                            color: const Color.fromRGBO(52, 152, 219, 1),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
+                          'Masuk di sini',
+                          style: AppTextStyles.labelMedium.copyWith(
+                            color: AppColors.accent,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                      Text(' sekarang',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                          ))
                     ],
-                  ),
-                  SizedBox(
-                    height: 50,
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
