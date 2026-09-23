@@ -51,11 +51,11 @@ jobs:
       upload_to_play_store: ${{ inputs.upload_to_play_store || false }}
       track: ${{ inputs.track || 'internal' }}
       env_content: |
-        BASE_URL=${{ vars.BASE_URL || 'https://be-apple-store.eka-dev.cloud' }}
-        GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID || '897905079551-0bm5skv53tbcpqobtlkaatmfheftthc4.apps.googleusercontent.com' }}
-        GOOGLE_IOS_CLIENT_ID=${{ vars.GOOGLE_IOS_CLIENT_ID || '897905079551-cij7kf0fpf5smbejqthd8l488alv6siv.apps.googleusercontent.com' }}
-        GOOGLE_SERVER_CLIENT_ID=${{ vars.GOOGLE_SERVER_CLIENT_ID || '897905079551-0bm5skv53tbcpqobtlkaatmfheftthc4.apps.googleusercontent.com' }}
-        LOKI_URL=${{ vars.LOKI_URL || 'https://loki.eka-dev.cloud/loki/api/v1/push' }}
+        BASE_URL=${{ vars.BASE_URL }}
+        GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }}
+        GOOGLE_IOS_CLIENT_ID=${{ vars.GOOGLE_IOS_CLIENT_ID }}
+        GOOGLE_SERVER_CLIENT_ID=${{ vars.GOOGLE_SERVER_CLIENT_ID }}
+        LOKI_URL=${{ vars.LOKI_URL }}
     secrets:
       ENV_FILE: ${{ secrets.ENV_FILE }}
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
