@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
+import '../services/crash_reporter_service.dart';
 
 enum LogLevel { debug, info, warning, error, success }
 
@@ -28,10 +29,17 @@ class AppLogger {
 
   static void w(String message, [String tag = 'WARN']) {
     _log(message, tag: tag, level: LogLevel.warning);
+    CrashReporterService.instance.recordLog(message, level: 'WARN', tag: tag);
   }
 
   static void e(String message, [dynamic error, StackTrace? stackTrace, String tag = 'ERROR']) {
     _log(message, tag: tag, level: LogLevel.error, error: error, stackTrace: stackTrace);
+    CrashReporterService.instance.recordError(
+      error ?? message,
+      stackTrace,
+      reason: message,
+      tag: tag,
+    );
   }
 
   static void _log(

@@ -73,7 +73,7 @@ class StartedView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Inovasi Apple.\nKini di Tangan Anda.',
+                    'Apple Innovation.\nNow in Your Hands.',
                     style: AppTextStyles.displayMedium.copyWith(
                       color: AppColors.textLight,
                       height: 1.15,
@@ -82,7 +82,7 @@ class StartedView extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    'Belanja produk Apple original dengan garansi resmi dan proteksi pembayaran terbaik.',
+                    'Shop authentic Apple products with official warranty and secure payments.',
                     style: AppTextStyles.bodyMedium.copyWith(
                       color: AppColors.textTertiary,
                       height: 1.4,
@@ -91,13 +91,13 @@ class StartedView extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.xxxl),
                   AppButton(
-                    text: 'Masuk ke Akun',
+                    text: 'Sign In',
                     variant: AppButtonVariant.secondary,
                     onPressed: () => Get.toNamed(Routes.LOGIN),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   AppButton(
-                    text: 'Buat Akun Baru',
+                    text: 'Create New Account',
                     variant: AppButtonVariant.outline,
                     borderRadius: AppSpacing.roundedLg,
                     onPressed: () => Get.toNamed(Routes.REGISTER),

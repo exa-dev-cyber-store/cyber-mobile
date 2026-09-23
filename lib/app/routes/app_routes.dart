@@ -20,6 +20,7 @@ class Routes {
 
   static const INVOICE = '/invoice/:id';
   static const SEARCH_PRODUCT = '/search-product';
+  static const NOTIFICATIONS = '/notifications';
 
   static String invoice(String id) => '/invoice/$id';
   static String detailProduct(String id) => '/detail-product/$id';

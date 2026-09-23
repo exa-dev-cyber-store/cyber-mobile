@@ -20,7 +20,7 @@ class OrderHistoryView extends GetView<OrderHistoryController> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Riwayat Pesanan', style: AppTextStyles.titleMedium),
+        title: Text('Order History', style: AppTextStyles.titleMedium),
         centerTitle: true,
         backgroundColor: AppColors.surface,
         leading: IconButton(
@@ -41,9 +41,9 @@ class OrderHistoryView extends GetView<OrderHistoryController> {
             if (controller.orders.isEmpty) {
               return EmptyStateView(
                 icon: Icons.receipt_long_outlined,
-                title: 'Belum Ada Pesanan',
-                description: 'Anda belum pernah melakukan pemesanan produk. Ayo mulai belanja!',
-                buttonText: 'Mulai Belanja',
+                title: 'No Orders Yet',
+                description: 'You have not placed any orders yet. Start shopping!',
+                buttonText: 'Start Shopping',
                 onButtonPressed: () => Get.offNamed(Routes.HOME),
               );
             }
@@ -85,7 +85,13 @@ class OrderHistoryView extends GetView<OrderHistoryController> {
                               ),
                             ],
                           ),
-                          StatusBadge(status: order.statusPayment),
+                          Row(
+                            children: [
+                              StatusBadge(status: order.statusDelivery),
+                              const SizedBox(width: 6),
+                              StatusBadge(status: order.statusPayment),
+                            ],
+                          ),
                         ],
                       ),
                       const Divider(height: 20),
@@ -101,7 +107,7 @@ class OrderHistoryView extends GetView<OrderHistoryController> {
                         const SizedBox(height: 2),
                         Text(
                           order.orderItems.length > 1
-                              ? '${order.orderItems.first.quantity} item • +${order.orderItems.length - 1} produk lainnya'
+                              ? '${order.orderItems.first.quantity} item • +${order.orderItems.length - 1} other item(s)'
                               : '${order.orderItems.first.quantity} item',
                           style: AppTextStyles.bodySmall,
                         ),
@@ -115,7 +121,7 @@ class OrderHistoryView extends GetView<OrderHistoryController> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Total Belanja', style: AppTextStyles.bodySmall),
+                              Text('Total Amount', style: AppTextStyles.bodySmall),
                               Text(
                                 CurrencyFormatter.format(order.total),
                                 style: AppTextStyles.price.copyWith(fontSize: 15),
@@ -150,7 +156,7 @@ class OrderHistoryView extends GetView<OrderHistoryController> {
                                     shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedPill),
                                   ),
                                   child: Text(
-                                    'Bayar',
+                                    'Pay',
                                     style: AppTextStyles.labelSmall.copyWith(
                                       color: AppColors.textLight,
                                       fontWeight: FontWeight.w700,

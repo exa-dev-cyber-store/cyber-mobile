@@ -11,6 +11,7 @@ import 'package:cyber/app/modules/home/widget/card_product_widget.dart';
 import 'package:cyber/app/modules/home/widget/skeleton_categories_widget.dart';
 import 'package:cyber/app/modules/home/widget/skeleton_products_widget.dart';
 import 'package:cyber/app/modules/home/widget/top_bar_search_widget.dart';
+import 'package:cyber/app/modules/notifications/controllers/notifications_controller.dart';
 
 class HomePages extends StatelessWidget {
   HomePages({super.key});
@@ -43,66 +44,119 @@ class HomePages extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Halo, ${controller.userName.split(' ')[0]} 👋',
+                                'Hello, ${controller.userName.split(' ')[0]} 👋',
                                 style: AppTextStyles.titleLarge,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 2),
                               Text(
-                                'Selamat datang di Cyber Store',
+                                'Welcome to Cyber Store',
                                 style: AppTextStyles.bodyMedium,
                               ),
                             ],
                           ),
                         ),
                       ),
-                      // Cart Icon Button with dynamic badge
-                      IconButton(
-                        onPressed: () => Get.toNamed(Routes.CART),
-                        icon: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(AppSpacing.sm),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: AppSpacing.roundedMd,
-                                border: Border.all(color: AppColors.border),
-                              ),
-                              child: const Icon(
-                                Icons.shopping_bag_outlined,
-                                color: AppColors.textPrimary,
-                                size: 22,
-                              ),
-                            ),
-                            Positioned(
-                              top: -4,
-                              right: -4,
-                              child: GetBuilder<CartController>(
-                                init: Get.isRegistered<CartController>() ? Get.find<CartController>() : Get.put(CartController()),
-                                builder: (cartCtrl) {
-                                  if (cartCtrl.products.isEmpty) return const SizedBox();
-                                  return Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.accent,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Text(
-                                      cartCtrl.products.length.toString(),
-                                      style: AppTextStyles.labelSmall.copyWith(
-                                        color: AppColors.textLight,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w800,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Notification Bell Button with dynamic badge
+                          IconButton(
+                            onPressed: () => Get.toNamed(Routes.NOTIFICATIONS),
+                            icon: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(AppSpacing.sm),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surface,
+                                    borderRadius: AppSpacing.roundedMd,
+                                    border: Border.all(color: AppColors.border),
+                                  ),
+                                  child: const Icon(
+                                    Icons.notifications_none_rounded,
+                                    color: AppColors.textPrimary,
+                                    size: 22,
+                                  ),
+                                ),
+                                Positioned(
+                                  top: -4,
+                                  right: -4,
+                                  child: Obx(() {
+                                    if (!Get.isRegistered<NotificationsController>()) return const SizedBox.shrink();
+                                    final count = Get.find<NotificationsController>().unreadCount.value;
+                                    if (count == 0) return const SizedBox.shrink();
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.accent,
+                                        borderRadius: AppSpacing.roundedPill,
                                       ),
-                                    ),
-                                  );
-                                },
-                              ),
+                                      constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                                      child: Text(
+                                        count > 9 ? '9+' : '$count',
+                                        textAlign: TextAlign.center,
+                                        style: AppTextStyles.labelSmall.copyWith(
+                                          color: AppColors.textLight,
+                                          fontSize: 9.5,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                          // Cart Icon Button with dynamic badge
+                          IconButton(
+                            onPressed: () => Get.toNamed(Routes.CART),
+                            icon: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(AppSpacing.sm),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surface,
+                                    borderRadius: AppSpacing.roundedMd,
+                                    border: Border.all(color: AppColors.border),
+                                  ),
+                                  child: const Icon(
+                                    Icons.shopping_bag_outlined,
+                                    color: AppColors.textPrimary,
+                                    size: 22,
+                                  ),
+                                ),
+                                Positioned(
+                                  top: -4,
+                                  right: -4,
+                                  child: GetBuilder<CartController>(
+                                    init: Get.isRegistered<CartController>() ? Get.find<CartController>() : Get.put(CartController()),
+                                    builder: (cartCtrl) {
+                                      if (cartCtrl.products.isEmpty) return const SizedBox();
+                                      return Container(
+                                        padding: const EdgeInsets.all(5),
+                                        decoration: const BoxDecoration(
+                                          color: AppColors.accent,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          cartCtrl.products.length.toString(),
+                                          style: AppTextStyles.labelSmall.copyWith(
+                                            color: AppColors.textLight,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -157,7 +211,7 @@ class HomePages extends StatelessWidget {
                               ),
                               const SizedBox(height: AppSpacing.sm),
                               Text(
-                                'Ekosistem Apple\nTerlengkap',
+                                'Complete Apple\nEcosystem',
                                 style: AppTextStyles.titleMedium.copyWith(
                                   color: AppColors.textLight,
                                   height: 1.2,
@@ -165,7 +219,7 @@ class HomePages extends StatelessWidget {
                               ),
                               const SizedBox(height: AppSpacing.xs),
                               Text(
-                                'Garansi resmi iBox 1 tahun',
+                                'Official 1-Year Warranty',
                                 style: AppTextStyles.bodySmall.copyWith(
                                   color: AppColors.textTertiary,
                                 ),
@@ -191,7 +245,7 @@ class HomePages extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Kategori', style: AppTextStyles.titleSmall),
+                      Text('Categories', style: AppTextStyles.titleSmall),
                       const SizedBox(height: AppSpacing.md),
                       GetBuilder<HomeController>(
                         builder: (controller) => controller.isLoadingCategory
@@ -213,14 +267,14 @@ class HomePages extends StatelessWidget {
                       GetBuilder<HomeController>(
                         builder: (controller) => Text(
                           controller.activeCategory.isEmpty
-                              ? 'Produk Unggulan'
-                              : 'Kategori: ${controller.activeCategory}',
+                              ? 'Featured Products'
+                              : 'Category: ${controller.activeCategory}',
                           style: AppTextStyles.titleSmall,
                         ),
                       ),
                       GetBuilder<HomeController>(
                         builder: (controller) => Text(
-                          '${controller.totalProducts} Produk',
+                          '${controller.totalProducts} Products',
                           style: AppTextStyles.bodySmall,
                         ),
                       ),
@@ -241,7 +295,7 @@ class HomePages extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.symmetric(vertical: 40),
                         child: Center(
-                          child: Text('Tidak ada produk ditemukan'),
+                          child: Text('No products found'),
                         ),
                       ),
                     );

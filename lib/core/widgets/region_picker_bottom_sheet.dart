@@ -145,7 +145,7 @@ class _RegionPickerSheetContentState extends State<_RegionPickerSheetContent> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${widget.items.length} pilihan tersedia',
+                        '${widget.items.length} options available',
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.textTertiary,
                         ),
@@ -183,7 +183,7 @@ class _RegionPickerSheetContentState extends State<_RegionPickerSheetContent> {
                 autofocus: false,
                 style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
                 decoration: InputDecoration(
-                  hintText: 'Cari ${widget.title.toLowerCase()}...',
+                  hintText: 'Search ${widget.title.toLowerCase()}...',
                   hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
                   prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.textSecondary),
                   suffixIcon: _searchController.text.isNotEmpty
@@ -228,12 +228,12 @@ class _RegionPickerSheetContentState extends State<_RegionPickerSheetContent> {
                             ),
                             const SizedBox(height: AppSpacing.md),
                             Text(
-                              'Wilayah Tidak Ditemukan',
+                              'No Region Found',
                               style: AppTextStyles.labelLarge.copyWith(color: AppColors.textPrimary),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Coba gunakan kata kunci pencarian yang lain.',
+                              'Try searching with a different keyword.',
                               style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
                               textAlign: TextAlign.center,
                             ),

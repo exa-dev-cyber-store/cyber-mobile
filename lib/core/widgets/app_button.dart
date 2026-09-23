@@ -76,35 +76,42 @@ class AppButton extends StatelessWidget {
           borderRadius: effectiveRadius,
           onTap: isLoading ? null : onPressed,
           child: Center(
-            child: isLoading
-                ? SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.2,
-                      valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
-                    ),
-                  )
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (prefixIcon != null) ...[
-                        prefixIcon!,
-                        const SizedBox(width: AppSpacing.sm),
-                      ],
-                      Text(
-                        text,
-                        style: AppTextStyles.labelLarge.copyWith(
-                          color: foregroundColor,
-                        ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              child: isLoading
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
                       ),
-                      if (suffixIcon != null) ...[
-                        const SizedBox(width: AppSpacing.sm),
-                        suffixIcon!,
+                    )
+                  : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (prefixIcon != null) ...[
+                          prefixIcon!,
+                          const SizedBox(width: AppSpacing.sm),
+                        ],
+                        Flexible(
+                          child: Text(
+                            text,
+                            style: AppTextStyles.labelLarge.copyWith(
+                              color: foregroundColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (suffixIcon != null) ...[
+                          const SizedBox(width: AppSpacing.sm),
+                          suffixIcon!,
+                        ],
                       ],
-                    ],
-                  ),
+                    ),
+            ),
           ),
         ),
       ),

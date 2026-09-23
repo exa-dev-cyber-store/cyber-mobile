@@ -18,7 +18,7 @@ class WishlistPages extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Wishlist Saya', style: AppTextStyles.titleMedium),
+        title: Text('My Wishlist', style: AppTextStyles.titleMedium),
         centerTitle: true,
         backgroundColor: AppColors.surface,
         elevation: 0,
@@ -29,7 +29,7 @@ class WishlistPages extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(right: AppSpacing.lg),
                 child: Text(
-                  '${controller.listLikes.length} Item',
+                  '${controller.listLikes.length} ${controller.listLikes.length == 1 ? "Item" : "Items"}',
                   style: AppTextStyles.labelSmall.copyWith(color: AppColors.textSecondary),
                 ),
               ),
@@ -43,19 +43,35 @@ class WishlistPages extends StatelessWidget {
         child: GetBuilder<HomeController>(
           builder: (controller) {
             if (controller.isLoading && controller.listLikes.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.all(AppSpacing.xl),
-                child: SkeletonProductsLikeWidget(),
+              return LayoutBuilder(
+                builder: (context, constraints) => SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: const Padding(
+                      padding: EdgeInsets.all(AppSpacing.xl),
+                      child: SkeletonProductsLikeWidget(),
+                    ),
+                  ),
+                ),
               );
             }
 
             if (controller.listLikes.isEmpty) {
-              return EmptyStateView(
-                icon: Icons.favorite_outline_rounded,
-                title: 'Wishlist Masih Kosong',
-                description: 'Simpan produk Apple favorit Anda di sini untuk dibeli nanti.',
-                buttonText: 'Jelajahi Produk',
-                onButtonPressed: () => controller.changePage(0),
+              return LayoutBuilder(
+                builder: (context, constraints) => SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                    child: EmptyStateView(
+                      icon: Icons.favorite_outline_rounded,
+                      title: 'Your Wishlist is Empty',
+                      description: 'Save your favorite Apple products here to purchase later.',
+                      buttonText: 'Explore Products',
+                      onButtonPressed: () => controller.changePage(0),
+                    ),
+                  ),
+                ),
               );
             }
 

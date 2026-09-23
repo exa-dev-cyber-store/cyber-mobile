@@ -20,7 +20,7 @@ class CartView extends GetView<CartController> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Keranjang Belanja', style: AppTextStyles.titleMedium),
+        title: Text('Shopping Cart', style: AppTextStyles.titleMedium),
         centerTitle: true,
         backgroundColor: AppColors.surface,
         leading: IconButton(
@@ -40,9 +40,9 @@ class CartView extends GetView<CartController> {
             if (controller.products.isEmpty) {
               return EmptyStateView(
                 icon: Icons.shopping_bag_outlined,
-                title: 'Keranjang Masih Kosong',
-                description: 'Yuk, temukan produk Apple impianmu dan tambahkan ke keranjang!',
-                buttonText: 'Mulai Belanja',
+                title: 'Your Cart is Empty',
+                description: 'Find your dream Apple products and add them to your cart!',
+                buttonText: 'Start Shopping',
                 onButtonPressed: () => Get.offNamed(Routes.HOME),
               );
             }
@@ -98,7 +98,7 @@ class CartView extends GetView<CartController> {
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
-                            'Punya voucher promo? Bisa dipakai pada halaman checkout.',
+                            'Have a promo voucher? You can apply it at checkout.',
                             style: AppTextStyles.bodySmall.copyWith(
                               fontSize: 11,
                               color: AppColors.textSecondary,
@@ -122,7 +122,7 @@ class CartView extends GetView<CartController> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   AppButton(
-                    text: 'Lanjutkan ke Pembayaran',
+                    text: 'Proceed to Checkout',
                     suffixIcon: const Icon(Icons.arrow_forward_rounded, size: 18, color: AppColors.textLight),
                     onPressed: () => Get.toNamed(Routes.CHECKOUT),
                   ),

@@ -21,7 +21,7 @@ class BarCategoriesWidget extends StatelessWidget {
           if (index == 0) {
             final isAllSelected = homeController.activeCategory.isEmpty;
             return _buildChip(
-              label: 'Semua',
+              label: 'All',
               isSelected: isAllSelected,
               onTap: () => homeController.selectCategory(''),
             );

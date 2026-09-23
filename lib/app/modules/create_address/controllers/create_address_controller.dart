@@ -104,7 +104,7 @@ class CreateAddressController extends GetxController {
         kecController.text.trim().isEmpty ||
         kelController.text.trim().isEmpty ||
         detailController.text.trim().isEmpty) {
-      AppSnackbar.warning('Semua bidang alamat wajib diisi.');
+      AppSnackbar.warning('All address fields are required.');
       return;
     }
 
@@ -130,10 +130,10 @@ class CreateAddressController extends GetxController {
       }
 
       Get.back();
-      AppSnackbar.success('Alamat baru berhasil ditambahkan.');
+      AppSnackbar.success('New address added successfully.');
     } catch (e) {
       AppLogger.e('Error creating address', e);
-      AppSnackbar.error('Terjadi kesalahan saat menyimpan alamat.');
+      AppSnackbar.error('An error occurred while saving address.');
     } finally {
       isSubmit = false;
       update();

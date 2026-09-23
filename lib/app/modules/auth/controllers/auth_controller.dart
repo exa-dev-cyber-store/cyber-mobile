@@ -3,6 +3,7 @@ import '../../../../core/storage/local_storage.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/app_snackbar.dart';
 import '../../../../data/repositories/auth_repository.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../routes/app_pages.dart';
 import '../../home/controllers/home_controller.dart';
 
@@ -30,8 +31,8 @@ class AuthController extends GetxController {
   Future<void> login({required String email, required String password}) async {
     if (email.trim().isEmpty || password.trim().isEmpty) {
       AppSnackbar.warning(
-        'Email dan password tidak boleh kosong',
-        title: 'Perhatian',
+        'Email and password cannot be empty.',
+        title: 'Attention',
       );
       return;
     }
@@ -56,7 +57,7 @@ class AuthController extends GetxController {
       AppLogger.e('Login failed', e);
       AppSnackbar.error(
         e,
-        title: 'Gagal Masuk',
+        title: 'Login Failed',
       );
     } finally {
       isLoading.value = false;
@@ -70,8 +71,8 @@ class AuthController extends GetxController {
   }) async {
     if (name.trim().isEmpty || email.trim().isEmpty || password.trim().isEmpty) {
       AppSnackbar.warning(
-        'Semua bidang wajib diisi',
-        title: 'Perhatian',
+        'All fields are required.',
+        title: 'Attention',
       );
       return;
     }
@@ -86,8 +87,8 @@ class AuthController extends GetxController {
 
       if (result['token'] != null) {
         AppSnackbar.success(
-          'Selamat datang di Cyber Store! Silakan masuk.',
-          title: 'Pendaftaran Berhasil',
+          'Welcome to Cyber Store! Please sign in.',
+          title: 'Registration Successful',
         );
         Get.offAllNamed(Routes.LOGIN);
       }
@@ -95,7 +96,7 @@ class AuthController extends GetxController {
       AppLogger.e('Registration failed', e);
       AppSnackbar.error(
         e,
-        title: 'Gagal Mendaftar',
+        title: 'Registration Failed',
       );
     } finally {
       isLoading.value = false;
@@ -126,7 +127,70 @@ class AuthController extends GetxController {
       AppLogger.e('Google sign-in error', e);
       AppSnackbar.error(
         e,
-        title: 'Google Sign-In Gagal',
+        title: 'Google Sign-In Failed',
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> loginWithApple() async {
+    try {
+      isLoading.value = true;
+      final credential = await _authRepo.signInWithAppleAccount();
+      if (credential == null) {
+        isLoading.value = false;
+        return;
+      }
+
+      final identityToken = credential.identityToken;
+      if (identityToken == null) {
+        AppSnackbar.error(
+          'Failed to obtain Apple identity credentials. Please try again.',
+          title: 'Apple Sign-In Failed',
+        );
+        isLoading.value = false;
+        return;
+      }
+
+      String? fullName;
+      if (credential.givenName != null || credential.familyName != null) {
+        fullName = [credential.givenName, credential.familyName]
+            .where((p) => p != null && p.isNotEmpty)
+            .join(' ');
+      }
+
+      final result = await _authRepo.loginWithAppleApi(
+        identityToken: identityToken,
+        email: credential.email,
+        name: fullName,
+      );
+
+      if (result['token'] != null) {
+        if (!Get.isRegistered<HomeController>()) {
+          Get.put(HomeController(), permanent: true);
+        } else {
+          Get.find<HomeController>().onInit();
+        }
+        Get.offAllNamed(Routes.HOME);
+      } else {
+        Get.toNamed(Routes.REGISTER);
+      }
+    } on SignInWithAppleAuthorizationException catch (e) {
+      AppLogger.e('Apple sign-in authorization error: ${e.code} - ${e.message}', e);
+      if (e.code != AuthorizationErrorCode.canceled) {
+        AppSnackbar.error(
+          e.message.isNotEmpty
+              ? e.message
+              : 'Apple Sign-In failed (Code: ${e.code}). Please ensure an Apple ID is signed in under device Settings.',
+          title: 'Apple Sign-In Failed',
+        );
+      }
+    } catch (e) {
+      AppLogger.e('Apple sign-in error', e);
+      AppSnackbar.error(
+        e,
+        title: 'Apple Sign-In Failed',
       );
     } finally {
       isLoading.value = false;

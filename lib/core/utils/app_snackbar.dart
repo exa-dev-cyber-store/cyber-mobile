@@ -27,7 +27,7 @@ class AppSnackbar {
     bool force = false,
   }) {
     final cleanMsg = cleanErrorMessage(message);
-    if (cleanMsg.trim().isEmpty) return;
+    if (cleanMsg.trim().isEmpty || Get.testMode) return;
 
     final now = DateTime.now();
 
@@ -68,60 +68,72 @@ class AppSnackbar {
         bgColor = AppColors.surface;
         borderColor = AppColors.success.withValues(alpha: 0.35);
         icon = Icons.check_circle_rounded;
-        defaultTitle = 'Berhasil';
+        defaultTitle = 'Success';
         break;
       case SnackbarType.error:
         iconColor = AppColors.error;
         bgColor = AppColors.surface;
         borderColor = AppColors.error.withValues(alpha: 0.35);
         icon = Icons.error_rounded;
-        defaultTitle = 'Gagal';
+        defaultTitle = 'Error';
         break;
       case SnackbarType.warning:
         iconColor = AppColors.warning;
         bgColor = AppColors.surface;
         borderColor = AppColors.warning.withValues(alpha: 0.35);
         icon = Icons.warning_rounded;
-        defaultTitle = 'Perhatian';
+        defaultTitle = 'Warning';
         break;
       case SnackbarType.info:
         iconColor = AppColors.accent;
         bgColor = AppColors.surface;
         borderColor = AppColors.accent.withValues(alpha: 0.35);
         icon = Icons.info_rounded;
-        defaultTitle = 'Informasi';
+        defaultTitle = 'Information';
         break;
     }
 
     final finalTitle = title ?? defaultTitle;
 
     Get.rawSnackbar(
-      titleText: finalTitle.isNotEmpty
-          ? Text(
-              finalTitle,
-              style: AppTextStyles.labelLarge.copyWith(
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
-              ),
-            )
-          : null,
-      messageText: Text(
-        cleanMsg,
-        style: AppTextStyles.bodySmall.copyWith(
-          color: AppColors.textSecondary,
-          height: 1.35,
-        ),
-      ),
-      icon: Padding(
-        padding: const EdgeInsets.only(left: 4, right: 8),
-        child: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.12),
-            shape: BoxShape.circle,
+      titleText: const SizedBox.shrink(),
+      messageText: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: iconColor, size: 18),
           ),
-          child: Icon(icon, color: iconColor, size: 20),
-        ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (finalTitle.isNotEmpty)
+                  Text(
+                    finalTitle,
+                    style: AppTextStyles.labelLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                if (finalTitle.isNotEmpty) const SizedBox(height: 2),
+                Text(
+                  cleanMsg,
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       snackPosition: position,
       backgroundColor: bgColor,
@@ -208,9 +220,11 @@ class AppSnackbar {
     );
   }
 
-  /// Sanitizes any exception, Dio error, or raw string into clean, human-friendly Indonesian
+
+
+  /// Sanitizes any exception, Dio error, or raw string into clean, human-friendly English
   static String cleanErrorMessage(dynamic input) {
-    if (input == null) return 'Terjadi kesalahan. Silakan coba lagi.';
+    if (input == null) return 'An error occurred. Please try again.';
 
     String raw;
     if (input is AppException) {
@@ -233,27 +247,27 @@ class AppSnackbar {
     raw = raw.replaceAll(RegExp(r'^ClientException:\s*', caseSensitive: false), '');
     raw = raw.replaceAll(RegExp(r'^SocketException:\s*', caseSensitive: false), '');
 
-    // Map common raw English phrases to friendly Indonesian
+    // Map common raw phrases to friendly English
     final lower = raw.trim().toLowerCase();
     if (lower.contains('invalid email or password') || lower.contains('invalid credentials')) {
-      return 'Email atau kata sandi tidak sesuai. Silakan periksa kembali.';
+      return 'Invalid email or password. Please verify your credentials.';
     }
     if (lower.contains('email already') || lower.contains('user already exists') || lower.contains('duplicate key')) {
-      return 'Email ini sudah terdaftar. Silakan masuk atau gunakan email lain.';
+      return 'This email is already registered. Please sign in or use another email.';
     }
     if (lower.contains('connection refused') || lower.contains('failed host lookup') || lower.contains('connection error')) {
-      return 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
+      return 'Cannot connect to the server. Please check your internet connection.';
     }
     if (lower.contains('timed out') || lower.contains('timeout')) {
-      return 'Waktu koneksi habis. Silakan coba beberapa saat lagi.';
+      return 'Connection timed out. Please try again shortly.';
     }
     if (lower.contains('jwt expired') || lower.contains('token expired')) {
-      return 'Sesi login telah berakhir. Silakan masuk kembali.';
+      return 'Session expired. Please sign in again.';
     }
     if (lower.contains('internal server error')) {
-      return 'Terjadi kendala pada server kami. Silakan coba beberapa saat lagi.';
+      return 'A server issue occurred. Please try again later.';
     }
 
-    return raw.trim().isEmpty ? 'Terjadi kesalahan yang tidak diketahui.' : raw.trim();
+    return raw.trim().isEmpty ? 'An unknown error occurred.' : raw.trim();
   }
 }

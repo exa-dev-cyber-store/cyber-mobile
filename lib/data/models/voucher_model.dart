@@ -29,17 +29,17 @@ class VoucherModel {
 
   String get formattedDiscountText {
     if (isPercentage) {
-      return 'Diskon $discountValue%';
+      return '$discountValue% OFF';
     } else {
-      return 'Potongan ${CurrencyFormatter.format(discountValue)}';
+      return '${CurrencyFormatter.format(discountValue)} OFF';
     }
   }
 
   String get formattedRequirementText {
     if (minPurchase > 0) {
-      return 'Min. belanja ${CurrencyFormatter.format(minPurchase)}';
+      return 'Min. spend ${CurrencyFormatter.format(minPurchase)}';
     }
-    return 'Tanpa minimum belanja';
+    return 'No minimum spend';
   }
 
   int calculateEstimatedDiscount(int subtotal) {

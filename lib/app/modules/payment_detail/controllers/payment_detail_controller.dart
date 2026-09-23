@@ -98,7 +98,7 @@ class PaymentDetailController extends GetxController {
   void copyToClipboard(String text, String label) {
     if (text.isEmpty) return;
     Clipboard.setData(ClipboardData(text: text));
-    AppSnackbar.info('$label berhasil disalin ke clipboard', title: 'Salin Berhasil');
+    AppSnackbar.info('$label copied to clipboard', title: 'Copied');
   }
 
   Future<void> checkStatus({bool isManual = false}) async {
@@ -118,8 +118,8 @@ class PaymentDetailController extends GetxController {
         _countdownTimer?.cancel();
 
         AppSnackbar.success(
-          'Terima kasih! Pembayaran Anda telah kami terima.',
-          title: 'Pembayaran Berhasil! 🎉',
+          'Thank you! Your payment has been received.',
+          title: 'Payment Successful! 🎉',
         );
 
         // Redirect to invoice after short moment
@@ -130,14 +130,14 @@ class PaymentDetailController extends GetxController {
         _countdownTimer?.cancel();
 
         AppSnackbar.error(
-          'Pesanan ini telah kadaluarsa atau dibatalkan.',
-          title: 'Pembayaran Tidak Aktif',
+          'This order has expired or was cancelled.',
+          title: 'Payment Inactive',
         );
       } else {
         if (isManual) {
           AppSnackbar.warning(
-            'Pembayaran belum terdeteksi. Silakan selesaikan transfer lalu klik cek status lagi.',
-            title: 'Status Pembayaran',
+            'Payment not yet detected. Please complete the transfer and check again.',
+            title: 'Payment Status',
           );
         }
       }
@@ -146,7 +146,7 @@ class PaymentDetailController extends GetxController {
       if (isManual) {
         AppSnackbar.error(
           e,
-          title: 'Gagal Memeriksa Status',
+          title: 'Failed to Check Status',
         );
       }
     } finally {

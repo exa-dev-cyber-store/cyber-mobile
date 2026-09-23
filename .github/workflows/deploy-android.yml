@@ -1,0 +1,58 @@
+name: Deploy Android
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: "Build Output (appbundle, apk, or both)"
+        required: false
+        default: "both"
+        type: choice
+        options:
+          - appbundle
+          - apk
+          - both
+      upload_to_play_store:
+        description: "Deploy to Google Play Console"
+        required: false
+        default: false
+        type: boolean
+      track:
+        description: "Google Play Track"
+        required: false
+        default: "internal"
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+
+permissions:
+  contents: write
+  packages: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  deploy:
+    uses: exa31/github-workflows/.github/workflows/flutter-android.yml@main
+    with:
+      app_name: cyber-mobile
+      flutter_version: "3.x"
+      java_version: "17"
+      build_type: ${{ inputs.build_type || 'both' }}
+      package_name: "com.cyber.cyber"
+      enable_semantic_release: false
+      update_pubspec: false
+      upload_to_play_store: ${{ inputs.upload_to_play_store || false }}
+      track: ${{ inputs.track || 'internal' }}
+    secrets:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+      PLAY_STORE_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}

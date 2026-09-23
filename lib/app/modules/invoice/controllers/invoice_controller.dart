@@ -32,7 +32,7 @@ class InvoiceController extends GetxController {
     if (invoiceId.isEmpty || invoiceId == ':id') {
       loading = false;
       update();
-      AppSnackbar.error('ID Pesanan tidak valid atau tidak ditemukan.', title: 'Invoice Tidak Ditemukan');
+      AppSnackbar.error('Order ID is invalid or not found.', title: 'Invoice Not Found');
       return;
     }
 
@@ -43,7 +43,7 @@ class InvoiceController extends GetxController {
       invoice = await _invoiceRepo.getInvoice(invoiceId);
     } catch (e) {
       AppLogger.e('Error loading invoice', e);
-      AppSnackbar.error(e, title: 'Gagal Memuat Invoice');
+      AppSnackbar.error(e, title: 'Failed to Load Invoice');
     } finally {
       loading = false;
       update();
@@ -62,7 +62,7 @@ class InvoiceController extends GetxController {
       await InvoicePdfService.printInvoice(invoice!);
     } catch (e) {
       AppLogger.e('Error printing invoice', e);
-      AppSnackbar.error('Gagal memproses dokumen cetak invoice.', title: 'Cetak Gagal');
+      AppSnackbar.error('Failed to process invoice print document.', title: 'Print Failed');
     } finally {
       isPrinting = false;
       update();
@@ -83,7 +83,7 @@ class InvoiceController extends GetxController {
       );
     } catch (e) {
       AppLogger.e('Error sharing invoice', e);
-      AppSnackbar.error('Gagal membagikan dokumen invoice.', title: 'Gagal Berbagi');
+      AppSnackbar.error('Failed to share invoice document.', title: 'Share Failed');
     } finally {
       isPrinting = false;
       update();

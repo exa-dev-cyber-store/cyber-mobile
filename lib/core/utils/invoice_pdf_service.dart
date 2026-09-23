@@ -100,15 +100,15 @@ class InvoicePdfService {
                       ),
                       pw.SizedBox(height: 4),
                       pw.Text(
-                        'No. Faktur: $invoiceNum',
+                        'Invoice No.: $invoiceNum',
                         style: pw.TextStyle(font: fontBold, fontSize: 10, color: PdfColors.black),
                       ),
                       pw.Text(
-                        'Ref. Pesanan: $orderNum',
+                        'Order Ref.: $orderNum',
                         style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700),
                       ),
                       pw.Text(
-                        'Tanggal: ${DateFormatter.formatFull(invoice.order.createdAt)}',
+                        'Date: ${DateFormatter.formatFull(invoice.order.createdAt)}',
                         style: const pw.TextStyle(fontSize: 8.5, color: PdfColors.grey700),
                       ),
                       pw.SizedBox(height: 6),
@@ -124,7 +124,7 @@ class InvoicePdfService {
                           ),
                         ),
                         child: pw.Text(
-                          isPaid ? 'LUNAS (PAID)' : 'MENUNGGU PEMBAYARAN',
+                          isPaid ? 'PAID' : 'PENDING PAYMENT',
                           style: pw.TextStyle(
                             font: fontBold,
                             fontSize: 9,
@@ -150,7 +150,7 @@ class InvoicePdfService {
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          'INFORMASI PELANGGAN',
+                          'CUSTOMER INFORMATION',
                           style: pw.TextStyle(font: fontBold, fontSize: 9, color: PdfColors.grey700),
                         ),
                         pw.SizedBox(height: 4),
@@ -165,7 +165,7 @@ class InvoicePdfService {
                       crossAxisAlignment: pw.CrossAxisAlignment.start,
                       children: [
                         pw.Text(
-                          'ALAMAT PENGIRIMAN',
+                          'SHIPPING ADDRESS',
                           style: pw.TextStyle(font: fontBold, fontSize: 9, color: PdfColors.grey700),
                         ),
                         pw.SizedBox(height: 4),
@@ -184,7 +184,7 @@ class InvoicePdfService {
 
               // 3. Itemized Products Table
               pw.Text(
-                'RINCIAN PRODUK',
+                'ITEM DETAILS',
                 style: pw.TextStyle(font: fontBold, fontSize: 9, color: PdfColors.grey700),
               ),
               pw.SizedBox(height: 6),
@@ -206,7 +206,7 @@ class InvoicePdfService {
                     children: [
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(6),
-                        child: pw.Text('Deskripsi Item', style: pw.TextStyle(font: fontBold, fontSize: 8.5)),
+                        child: pw.Text('Item Description', style: pw.TextStyle(font: fontBold, fontSize: 8.5)),
                       ),
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(6),
@@ -214,7 +214,7 @@ class InvoicePdfService {
                       ),
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(6),
-                        child: pw.Text('Harga', textAlign: pw.TextAlign.right, style: pw.TextStyle(font: fontBold, fontSize: 8.5)),
+                        child: pw.Text('Price', textAlign: pw.TextAlign.right, style: pw.TextStyle(font: fontBold, fontSize: 8.5)),
                       ),
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(6),
@@ -261,16 +261,16 @@ class InvoicePdfService {
                       children: [
                         _buildSummaryRow('Subtotal', CurrencyFormatter.format(invoice.subtotal), fontRegular, fontBold),
                         pw.SizedBox(height: 3),
-                        _buildSummaryRow('PPN (11%)', CurrencyFormatter.format(invoice.tax), fontRegular, fontBold),
+                        _buildSummaryRow('VAT (11%)', CurrencyFormatter.format(invoice.tax), fontRegular, fontBold),
                         pw.SizedBox(height: 3),
-                        _buildSummaryRow('Ongkos Kirim', CurrencyFormatter.format(invoice.shipping), fontRegular, fontBold),
+                        _buildSummaryRow('Shipping Fee', CurrencyFormatter.format(invoice.shipping), fontRegular, fontBold),
                         if (invoice.discount > 0) ...[
                           pw.SizedBox(height: 3),
-                          _buildSummaryRow('Diskon', '- ${CurrencyFormatter.format(invoice.discount)}', fontRegular, fontBold, isDiscount: true),
+                          _buildSummaryRow('Discount', '- ${CurrencyFormatter.format(invoice.discount)}', fontRegular, fontBold, isDiscount: true),
                         ],
                         pw.Divider(thickness: 1, color: PdfColors.grey400),
                         pw.SizedBox(height: 2),
-                        _buildSummaryRow('TOTAL BAYAR', CurrencyFormatter.format(invoice.total), fontBold, fontBold, isTotal: true),
+                        _buildSummaryRow('TOTAL AMOUNT', CurrencyFormatter.format(invoice.total), fontBold, fontBold, isTotal: true),
                       ],
                     ),
                   ),
@@ -291,12 +291,12 @@ class InvoicePdfService {
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     pw.Text(
-                      'KETENTUAN GARANSI & PENGIRIMAN',
+                      'WARRANTY & SHIPPING TERMS',
                       style: pw.TextStyle(font: fontBold, fontSize: 8, color: PdfColors.black),
                     ),
                     pw.SizedBox(height: 2),
                     pw.Text(
-                      '• Semua unit produk Apple bergaransi resmi Apple Indonesia / iBox selama 1 (satu) tahun.\n• Simpan faktur penjualan ini sebagai bukti kepemilikan dan klaim garansi resmi.\n• Faktur ini diterbitkan secara sah oleh sistem elektronik Cyber Store.',
+                      '• All Apple products include official Apple 1-year limited warranty.\n• Please keep this invoice as proof of purchase and warranty claims.\n• This invoice is electronically generated and valid without signature.',
                       style: const pw.TextStyle(fontSize: 7.5, color: PdfColors.grey700, lineSpacing: 1.8),
                     ),
                   ],
@@ -306,7 +306,7 @@ class InvoicePdfService {
               pw.SizedBox(height: 8),
               pw.Center(
                 child: pw.Text(
-                  'Terima kasih telah berbelanja di Cyber Store Indonesia',
+                  'Thank you for shopping with Cyber Store',
                   style: pw.TextStyle(font: fontBold, fontSize: 8, color: PdfColors.grey600),
                 ),
               ),

@@ -1,6 +1,10 @@
+import 'dart:io' show File;
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/storage/local_storage.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/utils/app_snackbar.dart';
@@ -10,6 +14,8 @@ import '../../../../data/models/product_model.dart';
 import '../../../../data/repositories/auth_repository.dart';
 import '../../../../data/repositories/category_repository.dart';
 import '../../../../data/repositories/product_repository.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import '../../../data/services/fcm_service.dart';
 import '../../../routes/app_pages.dart';
 
 class HomeController extends GetxController {
@@ -32,9 +38,14 @@ class HomeController extends GetxController {
   bool isLoadingCategory = false;
   bool isLoadingMore = false;
 
-  // User Profile
+  // User Profile & Account Linking
   String userName = 'Member';
   String userEmail = '';
+  String? userAvatar;
+  Map<String, dynamic> linkedAccounts = {};
+  bool isLoadingLinkedAccounts = false;
+  bool isUploadingAvatar = false;
+  bool isUpdatingProfile = false;
 
   // Controllers
   final ScrollController scrollHome = ScrollController();
@@ -60,12 +71,14 @@ class HomeController extends GetxController {
     _storage = await LocalStorageService.getInstance();
     _authRepo = AuthRepository(_storage);
     loadUserProfile();
+    FcmService.syncTokenWithBackend();
     await fetchAll();
   }
 
   void _setupScrollListener() {
     scrollHome.addListener(() {
-      if (scrollHome.position.pixels >= scrollHome.position.maxScrollExtent - 200) {
+      if (scrollHome.position.pixels >=
+          scrollHome.position.maxScrollExtent - 200) {
         if (!isLoadingMore && products.length < totalProducts) {
           loadMoreProducts();
         }
@@ -76,7 +89,9 @@ class HomeController extends GetxController {
   void loadUserProfile() {
     userName = _storage.name ?? 'Member';
     userEmail = _storage.email ?? '';
+    userAvatar = _storage.avatar;
     update();
+    fetchLinkedAccounts();
   }
 
   void changePage(int index) {
@@ -204,6 +219,165 @@ class HomeController extends GetxController {
     }
   }
 
+  Future<void> fetchLinkedAccounts() async {
+    isLoadingLinkedAccounts = true;
+    update();
+    try {
+      linkedAccounts = await _authRepo.getLinkedAccounts();
+    } catch (e) {
+      AppLogger.w('Failed to fetch linked accounts: $e');
+    } finally {
+      isLoadingLinkedAccounts = false;
+      update();
+    }
+  }
+
+  Future<bool> updateProfileName(String newName) async {
+    if (newName.trim().isEmpty) return false;
+    isUpdatingProfile = true;
+    update();
+    try {
+      await _authRepo.updateProfileName(newName.trim());
+      userName = newName.trim();
+      AppSnackbar.success('Profile name updated successfully.',
+          title: 'Success');
+      update();
+      return true;
+    } catch (e) {
+      AppLogger.e('Failed to update name', e);
+      AppSnackbar.error(e, title: 'Failed to Update Name');
+      return false;
+    } finally {
+      isUpdatingProfile = false;
+      update();
+    }
+  }
+
+  Future<void> pickCropAndUploadAvatar(ImageSource source) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (image == null) return;
+
+      // Circular crop using image_cropper
+      final CroppedFile? croppedFile = await ImageCropper().cropImage(
+        sourcePath: image.path,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Profile Picture',
+            toolbarColor: AppColors.primary,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: true,
+            aspectRatioPresets: [CropAspectRatioPreset.square],
+            cropStyle: CropStyle.circle,
+          ),
+          IOSUiSettings(
+            title: 'Crop Profile Picture',
+            aspectRatioLockEnabled: true,
+            resetAspectRatioEnabled: false,
+            aspectRatioPickerButtonHidden: true,
+            cropStyle: CropStyle.circle,
+          ),
+        ],
+      );
+
+      if (croppedFile == null) return;
+
+      isUploadingAvatar = true;
+      update();
+
+      final newAvatarUrl = await _authRepo.uploadAvatar(File(croppedFile.path));
+      if (newAvatarUrl != null) {
+        userAvatar = newAvatarUrl;
+        AppSnackbar.success('Profile picture updated successfully.',
+            title: 'Success');
+        update();
+      }
+    } catch (e) {
+      AppLogger.e('Failed to upload avatar', e);
+      AppSnackbar.error(e, title: 'Failed to Upload Photo');
+    } finally {
+      isUploadingAvatar = false;
+      update();
+    }
+  }
+
+  Future<void> bindGoogleAccount() async {
+    try {
+      final account = await _authRepo.signInWithGoogleAccount();
+      if (account == null) return;
+
+      final auth = await account.authentication;
+      final token = auth.idToken ?? auth.accessToken;
+      if (token == null) {
+        AppSnackbar.error('Unable to retrieve Google credentials.',
+            title: 'Connection Failed');
+        return;
+      }
+
+      await _authRepo.linkGoogleApi(credential: token, email: account.email);
+      userEmail = account.email;
+      AppSnackbar.success('Google account connected successfully!',
+          title: 'Success');
+      await fetchLinkedAccounts();
+    } catch (e) {
+      AppLogger.e('Failed to link Google account', e);
+      AppSnackbar.error(e, title: 'Failed to Connect Google');
+    }
+  }
+
+  Future<void> bindAppleAccount() async {
+    try {
+      final credential = await _authRepo.signInWithAppleAccount();
+      if (credential == null) return;
+
+      final identityToken = credential.identityToken;
+      if (identityToken == null) {
+        AppSnackbar.error('Unable to retrieve Apple credentials.',
+            title: 'Connection Failed');
+        return;
+      }
+
+      await _authRepo.linkAppleApi(
+          identityToken: identityToken, email: credential.email);
+      AppSnackbar.success('Apple account connected successfully!',
+          title: 'Success');
+      await fetchLinkedAccounts();
+    } on SignInWithAppleAuthorizationException catch (e) {
+      AppLogger.e(
+          'Apple bind authorization error: ${e.code} - ${e.message}', e);
+      if (e.code != AuthorizationErrorCode.canceled) {
+        AppSnackbar.error(
+          e.message.isNotEmpty
+              ? e.message
+              : 'Apple connection failed (Code: ${e.code}). Please ensure an Apple ID is signed in under device Settings.',
+          title: 'Failed to Connect Apple',
+        );
+      }
+    } catch (e) {
+      AppLogger.e('Failed to link Apple account', e);
+      AppSnackbar.error(e, title: 'Failed to Connect Apple');
+    }
+  }
+
+  Future<void> unbindAppleAccount() async {
+    try {
+      await _authRepo.unbindAppleApi();
+      AppSnackbar.success('Apple account disconnected successfully!',
+          title: 'Success');
+      await fetchLinkedAccounts();
+    } catch (e) {
+      AppLogger.e('Failed to unbind Apple account', e);
+      AppSnackbar.error(e, title: 'Failed to Disconnect Apple');
+    }
+  }
+
   Future<void> logout() async {
     try {
       await _authRepo.logout();
@@ -212,8 +386,8 @@ class HomeController extends GetxController {
     } catch (e) {
       AppLogger.e('Logout error', e);
       AppSnackbar.error(
-        'Terjadi masalah saat logout. Silakan coba lagi.',
-        title: 'Gagal Keluar',
+        'An issue occurred during logout. Please try again.',
+        title: 'Logout Failed',
       );
     }
   }

@@ -22,7 +22,7 @@ class CheckoutView extends GetView<CheckoutController> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Konfirmasi Pesanan', style: AppTextStyles.titleMedium),
+        title: Text('Order Confirmation', style: AppTextStyles.titleMedium),
         centerTitle: true,
         backgroundColor: AppColors.surface,
         leading: IconButton(
@@ -54,17 +54,21 @@ class CheckoutView extends GetView<CheckoutController> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.location_on_rounded, size: 18, color: AppColors.accent),
+                              const Icon(Icons.location_on_rounded,
+                                  size: 18, color: AppColors.accent),
                               const SizedBox(width: AppSpacing.xs),
                               Text(
-                                'Alamat Pengiriman',
-                                style: AppTextStyles.labelLarge.copyWith(fontWeight: FontWeight.w700),
+                                'Shipping Address',
+                                style: AppTextStyles.labelLarge
+                                    .copyWith(fontWeight: FontWeight.w700),
                               ),
                             ],
                           ),
                           TextButton(
-                            onPressed: () => Get.toNamed(Routes.SELECT_ADDRESSES),
-                            child: Text(address != null ? 'Ubah' : 'Pilih Alamat'),
+                            onPressed: () =>
+                                Get.toNamed(Routes.SELECT_ADDRESSES),
+                            child: Text(
+                                address != null ? 'Change' : 'Select Address'),
                           ),
                         ],
                       ),
@@ -77,12 +81,14 @@ class CheckoutView extends GetView<CheckoutController> {
                               const SizedBox(
                                 width: 16,
                                 height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               ),
                               const SizedBox(width: AppSpacing.sm),
                               Text(
-                                'Memuat alamat pengiriman...',
-                                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
+                                'Loading delivery address...',
+                                style: AppTextStyles.bodySmall
+                                    .copyWith(color: AppColors.textSecondary),
                               ),
                             ],
                           ),
@@ -92,27 +98,33 @@ class CheckoutView extends GetView<CheckoutController> {
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Row(
                             children: [
-                              const Icon(Icons.error_outline_rounded, size: 16, color: AppColors.error),
+                              const Icon(Icons.error_outline_rounded,
+                                  size: 16, color: AppColors.error),
                               const SizedBox(width: AppSpacing.xs),
                               Expanded(
                                 child: Text(
-                                  addrCtrl.errorMessage ?? 'Gagal memuat alamat.',
-                                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
+                                  addrCtrl.errorMessage ??
+                                      'Failed to load address.',
+                                  style: AppTextStyles.bodySmall
+                                      .copyWith(color: AppColors.error),
                                 ),
                               ),
                               InkWell(
                                 onTap: () => addrCtrl.getAddress(),
                                 borderRadius: AppSpacing.roundedSm,
                                 child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.refresh_rounded, size: 14, color: AppColors.accent),
+                                      const Icon(Icons.refresh_rounded,
+                                          size: 14, color: AppColors.accent),
                                       const SizedBox(width: 4),
                                       Text(
-                                        'Coba Lagi',
-                                        style: AppTextStyles.labelSmall.copyWith(
+                                        'Retry',
+                                        style:
+                                            AppTextStyles.labelSmall.copyWith(
                                           color: AppColors.accent,
                                           fontWeight: FontWeight.w700,
                                         ),
@@ -125,31 +137,39 @@ class CheckoutView extends GetView<CheckoutController> {
                           ),
                         ),
                       ] else if (address != null) ...[
-                        Text(address.name, style: AppTextStyles.labelMedium.copyWith(fontWeight: FontWeight.w600)),
+                        Text(address.name,
+                            style: AppTextStyles.labelMedium
+                                .copyWith(fontWeight: FontWeight.w600)),
                         const SizedBox(height: 2),
-                        Text(address.fullAddress, style: AppTextStyles.bodySmall.copyWith(height: 1.4)),
+                        Text(address.fullAddress,
+                            style:
+                                AppTextStyles.bodySmall.copyWith(height: 1.4)),
                       ] else ...[
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
                               child: Text(
-                                'Belum ada alamat terpilih.',
-                                style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
+                                'No address selected yet.',
+                                style: AppTextStyles.bodySmall
+                                    .copyWith(color: AppColors.textTertiary),
                               ),
                             ),
                             InkWell(
                               onTap: () => addrCtrl.getAddress(),
                               borderRadius: AppSpacing.roundedSm,
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.refresh_rounded, size: 14, color: AppColors.textSecondary),
+                                    const Icon(Icons.refresh_rounded,
+                                        size: 14,
+                                        color: AppColors.textSecondary),
                                     const SizedBox(width: 4),
                                     Text(
-                                      'Muat Ulang',
+                                      'Reload',
                                       style: AppTextStyles.labelSmall.copyWith(
                                         color: AppColors.textSecondary,
                                         fontWeight: FontWeight.w600,
@@ -170,14 +190,15 @@ class CheckoutView extends GetView<CheckoutController> {
             const SizedBox(height: AppSpacing.lg),
 
             // Order Items
-            Text('Ringkasan Produk', style: AppTextStyles.titleSmall),
+            Text('Order Items', style: AppTextStyles.titleSmall),
             const SizedBox(height: AppSpacing.sm),
             GetBuilder<CartController>(
               builder: (controller) => ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: controller.products.length,
-                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (context, index) {
                   return CardCheckoutProducts(item: controller.products[index]);
                 },
@@ -186,13 +207,13 @@ class CheckoutView extends GetView<CheckoutController> {
             const SizedBox(height: AppSpacing.xl),
 
             // Voucher & Promo Section
-            Text('Voucher & Kupon Promo', style: AppTextStyles.titleSmall),
+            Text('Voucher & Promo Code', style: AppTextStyles.titleSmall),
             const SizedBox(height: AppSpacing.sm),
             VoucherCardWidget(controller: controller),
             const SizedBox(height: AppSpacing.xl),
 
             // Payment Method Selection
-            Text('Metode Pembayaran', style: AppTextStyles.titleSmall),
+            Text('Payment Method', style: AppTextStyles.titleSmall),
             const SizedBox(height: AppSpacing.sm),
             GetBuilder<CheckoutController>(
               builder: (ctrl) => Container(
@@ -212,12 +233,15 @@ class CheckoutView extends GetView<CheckoutController> {
                     return InkWell(
                       onTap: () => ctrl.setPaymentMethod(method.id),
                       borderRadius: index == 0
-                          ? const BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusXl))
+                          ? const BorderRadius.vertical(
+                              top: Radius.circular(AppSpacing.radiusXl))
                           : index == ctrl.paymentMethods.length - 1
-                              ? const BorderRadius.vertical(bottom: Radius.circular(AppSpacing.radiusXl))
+                              ? const BorderRadius.vertical(
+                                  bottom: Radius.circular(AppSpacing.radiusXl))
                               : BorderRadius.zero,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg, vertical: 14),
                         child: Row(
                           children: [
                             Container(
@@ -231,7 +255,9 @@ class CheckoutView extends GetView<CheckoutController> {
                               child: Icon(
                                 method.icon,
                                 size: 22,
-                                color: isSelected ? AppColors.accent : AppColors.textSecondary,
+                                color: isSelected
+                                    ? AppColors.accent
+                                    : AppColors.textSecondary,
                               ),
                             ),
                             const SizedBox(width: AppSpacing.md),
@@ -242,7 +268,9 @@ class CheckoutView extends GetView<CheckoutController> {
                                   Text(
                                     method.title,
                                     style: AppTextStyles.labelLarge.copyWith(
-                                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -262,7 +290,9 @@ class CheckoutView extends GetView<CheckoutController> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: isSelected ? AppColors.accent : AppColors.border,
+                                  color: isSelected
+                                      ? AppColors.accent
+                                      : AppColors.border,
                                   width: isSelected ? 6 : 1.5,
                                 ),
                               ),
@@ -289,19 +319,21 @@ class CheckoutView extends GetView<CheckoutController> {
                 builder: (ctrl) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Rincian Pembayaran', style: AppTextStyles.titleSmall),
+                    Text('Payment Summary', style: AppTextStyles.titleSmall),
                     const SizedBox(height: AppSpacing.md),
-                    _buildRow('Subtotal Produk', CurrencyFormatter.format(cartController.totalCart)),
+                    _buildRow('Item Subtotal',
+                        CurrencyFormatter.format(cartController.totalCart)),
                     const SizedBox(height: AppSpacing.sm),
-                    _buildRow('Pajak PPN', CurrencyFormatter.format(ctrl.tax)),
+                    _buildRow('VAT', CurrencyFormatter.format(ctrl.tax)),
                     const SizedBox(height: AppSpacing.sm),
-                    _buildRow('Ongkos Kirim', CurrencyFormatter.format(ctrl.shipping)),
+                    _buildRow('Shipping Fee',
+                        CurrencyFormatter.format(ctrl.shipping)),
                     if (ctrl.discount > 0) ...[
                       const SizedBox(height: AppSpacing.sm),
                       _buildRow(
                         ctrl.appliedVoucher != null
-                            ? 'Diskon Voucher (${ctrl.appliedVoucher!.code})'
-                            : 'Diskon Voucher',
+                            ? 'Voucher Discount (${ctrl.appliedVoucher!.code})'
+                            : 'Voucher Discount',
                         '- ${CurrencyFormatter.format(ctrl.discount)}',
                         isDiscount: true,
                       ),
@@ -310,10 +342,11 @@ class CheckoutView extends GetView<CheckoutController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Total Pembayaran', style: AppTextStyles.titleSmall),
+                        Text('Total Payment', style: AppTextStyles.titleSmall),
                         Text(
                           CurrencyFormatter.format(ctrl.total),
-                          style: AppTextStyles.priceLarge.copyWith(fontSize: 18),
+                          style:
+                              AppTextStyles.priceLarge.copyWith(fontSize: 18),
                         ),
                       ],
                     ),
@@ -332,18 +365,19 @@ class CheckoutView extends GetView<CheckoutController> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.shield_outlined, size: 20, color: AppColors.accent),
+                  const Icon(Icons.shield_outlined,
+                      size: 20, color: AppColors.accent),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      'Pembayaran aman & terenkripsi oleh Midtrans Payment Gateway.',
+                      'Secure & encrypted payment powered by Midtrans.',
                       style: AppTextStyles.bodySmall,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 100),
+            const SizedBox(height: AppSpacing.xs),
           ],
         ),
       ),
@@ -358,7 +392,7 @@ class CheckoutView extends GetView<CheckoutController> {
           ),
           child: SafeArea(
             child: AppButton(
-              text: 'Bayar Sekarang • ${CurrencyFormatter.format(controller.total)}',
+              text: 'Pay Now • ${CurrencyFormatter.format(controller.total)}',
               isLoading: controller.isCheckingOut,
               onPressed: () => controller.checkout(),
             ),

@@ -91,10 +91,10 @@ class _VoucherBottomSheetState extends State<VoucherBottomSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Voucher & Promo', style: AppTextStyles.titleMedium),
+                      Text('Vouchers & Promos', style: AppTextStyles.titleMedium),
                       const SizedBox(height: 2),
                       Text(
-                        'Gunakan promo terbaik untuk pesananmu',
+                        'Apply the best promo for your order',
                         style: AppTextStyles.bodySmall
                             .copyWith(color: AppColors.textSecondary),
                       ),
@@ -125,7 +125,7 @@ class _VoucherBottomSheetState extends State<VoucherBottomSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Punya Kode Promo?',
+                      'Have a Promo Code?',
                       style: AppTextStyles.labelLarge
                           .copyWith(fontWeight: FontWeight.w700),
                     ),
@@ -153,7 +153,7 @@ class _VoucherBottomSheetState extends State<VoucherBottomSheet> {
                                 letterSpacing: 1.2,
                               ),
                               decoration: InputDecoration(
-                                hintText: 'CONTOH: CYBER20',
+                                hintText: 'E.G. CYBER20',
                                 hintStyle: AppTextStyles.bodyMedium.copyWith(
                                   color: AppColors.textTertiary,
                                   fontFamily: 'sans-serif',
@@ -204,7 +204,7 @@ class _VoucherBottomSheetState extends State<VoucherBottomSheet> {
                                         ),
                                       )
                                     : const Text(
-                                        'Terapkan',
+                                        'Apply',
                                         style: TextStyle(
                                           color: AppColors.textLight,
                                           fontWeight: FontWeight.w600,
@@ -233,7 +233,7 @@ class _VoucherBottomSheetState extends State<VoucherBottomSheet> {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            'Punya voucher dari Instagram/TikTok? Masukkan kode rahasianya di atas.',
+                            'Have a code from social media? Enter your promo code above.',
                             style: AppTextStyles.bodySmall.copyWith(
                               fontSize: 11,
                               color: AppColors.textTertiary,
@@ -248,7 +248,7 @@ class _VoucherBottomSheetState extends State<VoucherBottomSheet> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Voucher Toko Tersedia',
+                          'Available Store Vouchers',
                           style: AppTextStyles.labelLarge
                               .copyWith(fontWeight: FontWeight.w700),
                         ),
@@ -260,7 +260,7 @@ class _VoucherBottomSheetState extends State<VoucherBottomSheet> {
                             borderRadius: AppSpacing.roundedPill,
                           ),
                           child: Text(
-                            '${ctrl.availableVouchers.length} Promo',
+                            '${ctrl.availableVouchers.length} Promos',
                             style: AppTextStyles.labelSmall.copyWith(
                               fontSize: 11,
                               color: AppColors.textSecondary,
@@ -305,7 +305,7 @@ class _VoucherBottomSheetState extends State<VoucherBottomSheet> {
                               size: 36, color: AppColors.textTertiary),
                           const SizedBox(height: AppSpacing.sm),
                           Text(
-                            'Belum ada promo publik saat ini',
+                            'No public promos available at the moment',
                             style: AppTextStyles.labelMedium
                                 .copyWith(color: AppColors.textSecondary),
                           ),
@@ -458,7 +458,7 @@ class _VoucherBottomSheetState extends State<VoucherBottomSheet> {
                         size: 14, color: Color(0xFF2E7D32)),
                     SizedBox(width: 3),
                     Text(
-                      'Dipakai',
+                      'Applied',
                       style: TextStyle(
                         fontSize: 11,
                         color: Color(0xFF2E7D32),
@@ -493,7 +493,7 @@ class _VoucherBottomSheetState extends State<VoucherBottomSheet> {
                       }
                     : null,
                 child: Text(
-                  'Gunakan',
+                  'Use',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,

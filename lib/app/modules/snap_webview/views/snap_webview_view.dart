@@ -16,7 +16,7 @@ class SnapWebviewView extends GetView<SnapWebviewController> {
     return Scaffold(
       backgroundColor: AppColors.surface,
       appBar: AppBar(
-        title: Text('Pembayaran Midtrans', style: AppTextStyles.titleSmall),
+        title: Text('Midtrans Payment', style: AppTextStyles.titleSmall),
         centerTitle: true,
         backgroundColor: AppColors.surface,
         leading: IconButton(

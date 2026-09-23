@@ -40,11 +40,11 @@ class AddressController extends GetxController {
       final success = await _addressRepo.deleteAddress(id);
       if (success) {
         addresses.removeWhere((a) => a.id == id);
-        AppSnackbar.success('Alamat pengiriman berhasil dihapus.', title: 'Dihapus');
+        AppSnackbar.success('Delivery address deleted successfully.', title: 'Deleted');
       }
     } catch (e) {
       AppLogger.e('Error deleting address', e);
-      AppSnackbar.error('Gagal menghapus alamat.', title: 'Gagal');
+      AppSnackbar.error('Failed to delete address.', title: 'Error');
     } finally {
       isDeleting = false;
       update();

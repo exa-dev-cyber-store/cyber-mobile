@@ -45,6 +45,11 @@ dependencies:
   # Storage & Auth
   shared_preferences: ^2.5.2
   google_sign_in: ^6.2.1
+  sign_in_with_apple: ^8.2.0
+
+  # Firebase & Push Notifications
+  firebase_core: ^4.15.0
+  firebase_messaging: ^16.7.0
 
   # UI, Fonts & Styling
   google_fonts: ^6.2.1
@@ -54,11 +59,14 @@ dependencies:
   readmore: ^3.0.0
   intl: ^0.20.2
 
-  # Utilities & Webview
+  # Utilities & Media
+  image_picker: ^1.1.2
+  image_cropper: ^8.1.0
   flutter_native_splash: ^2.4.4
   webview_flutter: ^4.10.0
   printing: 5.13.2
   pdf: 3.11.1
+  connectivity_plus: ^7.3.1
 
 dev_dependencies:
   flutter_test:

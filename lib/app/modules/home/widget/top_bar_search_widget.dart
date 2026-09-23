@@ -31,7 +31,7 @@ class TopBarSearchWidget extends StatelessWidget {
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Text(
-                    'Cari iPhone, Mac, AirPods...',
+                    'Search iPhone, Mac, AirPods...',
                     style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
                   ),
                 ),

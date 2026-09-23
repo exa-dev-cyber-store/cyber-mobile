@@ -3,6 +3,13 @@ plugins {
     id "kotlin-android"
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
+}
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -30,19 +37,38 @@ android {
     }
 
     signingConfigs {
-        debug {
-            keyAlias = 'upload'
-            storePassword = 'android'
-            storeFile file('upload-keystore.jks')
-            keyPassword = 'android'
+        release {
+            if (!keystorePropertiesFile.exists()) {
+                throw new GradleException(
+                    "❌ [Signing Error] 'android/key.properties' file not found.\n" +
+                    "Please create 'android/key.properties' from 'android/key.properties.example' and configure your keystore credentials."
+                )
+            }
+
+            def keystoreFile = keystoreProperties['storeFile']
+            if (!keystoreFile || !keystoreProperties['storePassword'] || !keystoreProperties['keyAlias'] || !keystoreProperties['keyPassword']) {
+                throw new GradleException(
+                    "❌ [Signing Error] 'android/key.properties' is missing required fields (storePassword, keyPassword, keyAlias, storeFile)."
+                )
+            }
+
+            def resolvedStoreFile = file(keystoreFile).exists() ? file(keystoreFile) : rootProject.file(keystoreFile)
+            if (!resolvedStoreFile.exists()) {
+                throw new GradleException(
+                    "❌ [Signing Error] Keystore file '${keystoreFile}' not found in android/app/ or android/ directory."
+                )
+            }
+
+            keyAlias = keystoreProperties['keyAlias']
+            keyPassword = keystoreProperties['keyPassword']
+            storeFile = resolvedStoreFile
+            storePassword = keystoreProperties['storePassword']
         }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.release
         }
     }
 

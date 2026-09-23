@@ -30,7 +30,7 @@ class DetailProductView extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
           onPressed: () => Get.back(),
         ),
-        title: Text('Detail Produk', style: AppTextStyles.titleSmall),
+        title: Text('Product Details', style: AppTextStyles.titleSmall),
         centerTitle: true,
         actions: [
           IconButton(
@@ -60,18 +60,18 @@ class DetailProductView extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(
-                      'Produk Tidak Ditemukan',
+                      'Product Not Found',
                       style: AppTextStyles.titleMedium,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      'Produk mungkin telah dihapus atau tidak tersedia.',
+                      'The product may have been removed or is unavailable.',
                       style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.xl),
                     AppButton(
-                      text: 'Kembali',
+                      text: 'Back',
                       variant: AppButtonVariant.outline,
                       onPressed: () => Get.back(),
                     ),
@@ -186,11 +186,11 @@ class DetailProductView extends StatelessWidget {
                       // Highlights Badges
                       Row(
                         children: [
-                          _buildBadge(Icons.verified_rounded, 'Garansi 1 Tahun'),
+                          _buildBadge(Icons.verified_rounded, '1-Year Warranty'),
                           const SizedBox(width: AppSpacing.sm),
-                          _buildBadge(Icons.local_shipping_outlined, 'Bebas Ongkir'),
+                          _buildBadge(Icons.local_shipping_outlined, 'Free Shipping'),
                           const SizedBox(width: AppSpacing.sm),
-                          _buildBadge(Icons.security_rounded, '100% Original'),
+                          _buildBadge(Icons.security_rounded, '100% Authentic'),
                         ],
                       ),
                     ],
@@ -207,14 +207,14 @@ class DetailProductView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Deskripsi Produk', style: AppTextStyles.titleSmall),
+                      Text('Product Description', style: AppTextStyles.titleSmall),
                       const SizedBox(height: AppSpacing.md),
                       ReadMoreText(
-                        product.description.isEmpty ? 'Tidak ada deskripsi tersedia.' : product.description,
+                        product.description.isEmpty ? 'No description available.' : product.description,
                         trimLines: 4,
                         trimMode: TrimMode.Line,
-                        trimCollapsedText: ' Selengkapnya',
-                        trimExpandedText: ' Lebih Sedikit',
+                        trimCollapsedText: ' Read more',
+                        trimExpandedText: ' Show less',
                         moreStyle: AppTextStyles.labelMedium.copyWith(color: AppColors.accent),
                         lessStyle: AppTextStyles.labelMedium.copyWith(color: AppColors.accent),
                         style: AppTextStyles.bodyMedium.copyWith(
@@ -236,7 +236,7 @@ class DetailProductView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Produk Terkait', style: AppTextStyles.titleSmall),
+                        Text('Related Products', style: AppTextStyles.titleSmall),
                         const SizedBox(height: AppSpacing.lg),
                         GridView.builder(
                           shrinkWrap: true,
@@ -301,7 +301,7 @@ class DetailProductView extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Harga Satuan', style: AppTextStyles.bodySmall),
+                        Text('Unit Price', style: AppTextStyles.bodySmall),
                         const SizedBox(height: 2),
                         Text(
                           CurrencyFormatter.format(ctrl.product!.price),
@@ -321,7 +321,7 @@ class DetailProductView extends StatelessWidget {
                   Expanded(
                     flex: 3,
                     child: AppButton(
-                      text: 'Tambah Keranjang',
+                      text: 'Add to Cart',
                       prefixIcon: const Icon(Icons.add_shopping_cart_rounded, size: 18, color: AppColors.textLight),
                       isLoading: ctrl.isAddingToCart,
                       onPressed: () => ctrl.addToCart(),

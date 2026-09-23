@@ -56,7 +56,7 @@ class VoucherCardWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Text(
-                      'Voucher Aktif Terpasang',
+                      'Voucher Applied',
                       style: AppTextStyles.labelMedium.copyWith(
                         color: const Color(0xFF2E7D32),
                         fontWeight: FontWeight.w700,
@@ -72,7 +72,7 @@ class VoucherCardWidget extends StatelessWidget {
                       ),
                       onPressed: () => VoucherBottomSheet.show(context, ctrl),
                       child: Text(
-                        'Ganti',
+                        'Change',
                         style: AppTextStyles.labelSmall.copyWith(
                           color: AppColors.accent,
                           fontWeight: FontWeight.w600,
@@ -185,14 +185,14 @@ class VoucherCardWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Voucher & Promo Toko',
+                        'Store Vouchers & Promos',
                         style: AppTextStyles.labelLarge.copyWith(fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         promoCount > 0
-                            ? '$promoCount promo tersedia untukmu'
-                            : 'Gunakan kode promo hemat',
+                            ? '$promoCount promotions available'
+                            : 'Apply promo code to save',
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.textSecondary,
                           fontSize: 11,
@@ -212,7 +212,7 @@ class VoucherCardWidget extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Pilih',
+                        'Select',
                         style: AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(width: 4),

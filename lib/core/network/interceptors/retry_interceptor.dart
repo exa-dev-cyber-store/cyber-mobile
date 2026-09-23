@@ -18,7 +18,7 @@ class RetryInterceptor extends Interceptor {
     final statusCode = err.response?.statusCode;
     final isServerError = statusCode != null && statusCode >= 500;
 
-    // Retry only on server errors 500++
+    // Retry on server errors 500++
     if (isServerError) {
       final requestOptions = err.requestOptions;
       int retryCount = requestOptions.extra['retry_count'] as int? ?? 0;

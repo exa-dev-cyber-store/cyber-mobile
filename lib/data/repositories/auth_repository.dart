@@ -1,4 +1,8 @@
+import 'dart:io' show File, Platform;
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../core/constants/api_endpoints.dart';
 import '../../core/network/api_client.dart';
 import '../../core/storage/local_storage.dart';
@@ -7,9 +11,17 @@ import '../../core/utils/app_logger.dart';
 class AuthRepository {
   final ApiClient _api = ApiClient.instance;
   final LocalStorageService _storage;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  late final GoogleSignIn _googleSignIn;
 
-  AuthRepository(this._storage);
+  AuthRepository(this._storage) {
+    final iosClientId = dotenv.env['GOOGLE_IOS_CLIENT_ID'] ?? dotenv.env['GOOGLE_CLIENT_ID'];
+    final serverClientId = dotenv.env['GOOGLE_SERVER_CLIENT_ID'] ?? dotenv.env['GOOGLE_CLIENT_ID'];
+
+    _googleSignIn = GoogleSignIn(
+      clientId: Platform.isIOS ? iosClientId : null,
+      serverClientId: serverClientId,
+    );
+  }
 
   Future<Map<String, dynamic>> login({
     required String email,
@@ -24,7 +36,8 @@ class AuthRepository {
     );
 
     final data = response.data;
-    final token = data['token'] ?? data['data']?['token'];
+    final token = data['token'] ?? data['data']?['token'] ?? data['data']?['accessToken'];
+    final refreshToken = data['refreshToken'] ?? data['data']?['refreshToken'];
     final user = data['user'] ?? data['data']?['user'] ?? {};
 
     if (token != null) {
@@ -32,6 +45,7 @@ class AuthRepository {
         name: user['name'] ?? '',
         email: user['email'] ?? email,
         token: token.toString(),
+        refreshToken: refreshToken?.toString(),
         userId: user['_id']?.toString(),
       );
     }
@@ -91,15 +105,19 @@ class AuthRepository {
     );
 
     final data = response.data;
-    final token = data['token'] ?? data['data']?['token'];
+    final token = data['token'] ?? data['data']?['token'] ?? data['data']?['accessToken'];
+    final refreshToken = data['refreshToken'] ?? data['data']?['refreshToken'];
     final user = data['user'] ?? data['data']?['user'] ?? {};
+    final avatar = user['avatar'] ?? data['data']?['avatar'];
 
     if (token != null) {
       await _storage.saveUser(
         name: user['name'] ?? '',
         email: user['email'] ?? email,
         token: token.toString(),
+        refreshToken: refreshToken?.toString(),
         userId: user['_id']?.toString(),
+        avatar: avatar?.toString(),
       );
     }
 
@@ -109,9 +127,153 @@ class AuthRepository {
     };
   }
 
+  Future<AuthorizationCredentialAppleID?> signInWithAppleAccount() async {
+    try {
+      return await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        webAuthenticationOptions: WebAuthenticationOptions(
+          clientId: 'cloud.eka-dev.apple-store.service',
+          redirectUri: Uri.parse(
+            'https://be-apple-store.eka-dev.cloud/api/auth/callback/apple',
+          ),
+        ),
+      );
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        AppLogger.i('Apple Sign-In was cancelled by user');
+        return null;
+      }
+      AppLogger.e('Apple Sign-In authorization error: ${e.code} - ${e.message}', e);
+      rethrow;
+    } catch (e) {
+      AppLogger.e('Apple Sign-In failed', e);
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> loginWithAppleApi({
+    required String identityToken,
+    String? email,
+    String? name,
+  }) async {
+    final response = await _api.post(
+      ApiEndpoints.appleAuth,
+      data: {
+        'identityToken': identityToken,
+        if (email != null && email.isNotEmpty) 'email': email,
+        if (name != null && name.isNotEmpty) 'name': name,
+      },
+    );
+
+    final data = response.data;
+    final token = data['token'] ?? data['data']?['token'] ?? data['data']?['accessToken'];
+    final refreshToken = data['refreshToken'] ?? data['data']?['refreshToken'];
+    final user = data['user'] ?? data['data']?['user'] ?? {};
+    final avatar = user['avatar'] ?? data['data']?['avatar'];
+
+    if (token != null) {
+      await _storage.saveUser(
+        name: user['name'] ?? name ?? 'Apple User',
+        email: user['email'] ?? email ?? '',
+        token: token.toString(),
+        refreshToken: refreshToken?.toString(),
+        userId: user['_id']?.toString(),
+        avatar: avatar?.toString(),
+      );
+    }
+
+    return {
+      'token': token,
+      'user': user,
+    };
+  }
+
+  Future<Map<String, dynamic>> getLinkedAccounts() async {
+    final response = await _api.get(ApiEndpoints.linkedAccounts);
+    final data = response.data?['data'] ?? response.data;
+    return Map<String, dynamic>.from(data ?? {});
+  }
+
+  Future<Map<String, dynamic>> linkGoogleApi({required String credential, String? email}) async {
+    final response = await _api.post(
+      ApiEndpoints.linkGoogle,
+      data: {
+        'credential': credential,
+        if (email != null) 'email': email,
+      },
+    );
+    final data = response.data?['data'] ?? response.data;
+    if (data?['token'] != null) {
+      await _storage.setToken(data['token'].toString());
+    }
+    if (data?['email'] != null) {
+      await _storage.saveUser(
+        name: data['name'] ?? _storage.name ?? '',
+        email: data['email'].toString(),
+      );
+    }
+    return Map<String, dynamic>.from(data ?? {});
+  }
+
+  Future<Map<String, dynamic>> linkAppleApi({required String identityToken, String? email}) async {
+    final response = await _api.post(
+      ApiEndpoints.linkApple,
+      data: {
+        'identityToken': identityToken,
+        if (email != null) 'email': email,
+      },
+    );
+    final data = response.data?['data'] ?? response.data;
+    return Map<String, dynamic>.from(data ?? {});
+  }
+
+  Future<Map<String, dynamic>> unbindAppleApi() async {
+    final response = await _api.post(ApiEndpoints.unbindApple);
+    final data = response.data?['data'] ?? response.data;
+    return Map<String, dynamic>.from(data ?? {});
+  }
+
+  Future<Map<String, dynamic>> updateProfileName(String name) async {
+    final response = await _api.put(
+      ApiEndpoints.updateProfile,
+      data: {'name': name},
+    );
+    await _storage.setName(name);
+    final data = response.data?['data'] ?? response.data;
+    return Map<String, dynamic>.from(data ?? {});
+  }
+
+  Future<String?> uploadAvatar(File imageFile) async {
+    final fileName = imageFile.path.split('/').last;
+    final formData = FormData.fromMap({
+      'avatar': await MultipartFile.fromFile(
+        imageFile.path,
+        filename: fileName,
+      ),
+    });
+
+    final response = await _api.post(
+      ApiEndpoints.uploadAvatar,
+      data: formData,
+    );
+
+    final avatarUrl = response.data?['data']?['avatar'] ?? response.data?['avatar'];
+    if (avatarUrl != null) {
+      await _storage.setAvatar(avatarUrl.toString());
+    }
+    return avatarUrl?.toString();
+  }
+
   Future<void> logout() async {
     try {
-      await _api.post(ApiEndpoints.logout);
+      final currentRefreshToken = _storage.refreshToken;
+      await _api.post(
+        ApiEndpoints.logout,
+        data: currentRefreshToken != null ? {'refreshToken': currentRefreshToken} : null,
+      );
     } catch (e) {
       AppLogger.w('Backend logout failed or offline: $e');
     } finally {

@@ -32,6 +32,8 @@ import '../modules/payment_detail/bindings/payment_detail_binding.dart';
 import '../modules/payment_detail/views/payment_detail_view.dart';
 import '../modules/snap_webview/bindings/snap_webview_binding.dart';
 import '../modules/snap_webview/views/snap_webview_view.dart';
+import '../modules/notifications/bindings/notifications_binding.dart';
+import '../modules/notifications/views/notifications_view.dart';
 
 part 'app_routes.dart';
 
@@ -146,6 +148,11 @@ class AppPages {
         SearchProductBinding(),
         HomeBinding(),
       ],
+    ),
+    GetPage(
+      name: Routes.NOTIFICATIONS,
+      page: () => const NotificationsView(),
+      binding: NotificationsBinding(),
     ),
   ];
 }

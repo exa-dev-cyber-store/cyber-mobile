@@ -33,20 +33,20 @@ class StatusBadge extends StatelessWidget {
       border = AppColors.success.withValues(alpha: 0.35);
       icon = Icons.check_circle_rounded;
       if (lower == 'settlement' || lower == 'paid' || lower == 'lunas') {
-        label = 'Lunas';
+        label = 'Paid';
       } else if (lower == 'delivered') {
-        label = 'Terkirim';
+        label = 'Delivered';
       } else if (lower == 'completed' || lower == 'selesai') {
-        label = 'Selesai';
+        label = 'Completed';
       } else {
-        label = 'Berhasil';
+        label = 'Success';
       }
     } else if (lower == 'pending' || lower == 'menunggu') {
       bg = AppColors.warningBg;
       fg = AppColors.warning;
       border = AppColors.warning.withValues(alpha: 0.35);
       icon = Icons.access_time_rounded;
-      label = 'Menunggu';
+      label = 'Pending';
     } else if (lower == 'cancel' ||
         lower == 'cancelled' ||
         lower == 'expire' ||
@@ -57,7 +57,7 @@ class StatusBadge extends StatelessWidget {
       fg = AppColors.error;
       border = AppColors.error.withValues(alpha: 0.35);
       icon = Icons.cancel_rounded;
-      label = lower.contains('expire') ? 'Kadaluarsa' : 'Dibatalkan';
+      label = lower.contains('expire') ? 'Expired' : 'Cancelled';
     } else if (lower == 'shipping' ||
         lower == 'dikirim' ||
         lower == 'on_delivery' ||
@@ -66,15 +66,16 @@ class StatusBadge extends StatelessWidget {
       fg = AppColors.info;
       border = AppColors.info.withValues(alpha: 0.35);
       icon = Icons.local_shipping_rounded;
-      label = 'Dikirim';
+      label = 'Shipped';
     } else if (lower == 'processing' ||
+        lower == 'process' ||
         lower == 'diproses' ||
         lower == 'dikemas') {
       bg = AppColors.infoBg;
       fg = AppColors.primary;
       border = AppColors.primary.withValues(alpha: 0.35);
       icon = Icons.sync_rounded;
-      label = 'Diproses';
+      label = 'Processing';
     } else {
       bg = AppColors.surfaceTertiary;
       fg = AppColors.textSecondary;

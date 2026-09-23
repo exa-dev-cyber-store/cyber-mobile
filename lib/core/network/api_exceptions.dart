@@ -13,18 +13,18 @@ class AppException implements Exception {
   factory AppException.fromDioException(DioException dioException) {
     switch (dioException.type) {
       case DioExceptionType.connectionTimeout:
-        return NetworkTimeoutException('Koneksi ke server timeout. Silakan coba lagi.');
+        return NetworkTimeoutException('Connection to server timed out. Please try again.');
       case DioExceptionType.sendTimeout:
-        return NetworkTimeoutException('Waktu pengiriman data habis. Silakan coba lagi.');
+        return NetworkTimeoutException('Send request timed out. Please try again.');
       case DioExceptionType.receiveTimeout:
-        return NetworkTimeoutException('Waktu penerimaan respons server habis.');
+        return NetworkTimeoutException('Server response timed out. Please try again.');
       case DioExceptionType.badCertificate:
-        return SecurityException('Sertifikat keamanan server tidak valid.');
+        return SecurityException('Invalid server security certificate.');
       case DioExceptionType.badResponse:
         final statusCode = dioException.response?.statusCode;
         final responseData = dioException.response?.data;
 
-        String message = 'Terjadi kesalahan pada server ($statusCode)';
+        String message = 'Server error ($statusCode)';
         if (responseData is Map<String, dynamic>) {
           if (responseData['message'] != null) {
             message = responseData['message'].toString();
@@ -33,14 +33,14 @@ class AppException implements Exception {
           }
         }
 
-        // Clean up common English backend responses to clear Indonesian messages
+        // Clean up common error messages
         final lower = message.trim().toLowerCase();
         if (lower.contains('invalid email or password') || lower.contains('invalid credentials')) {
-          message = 'Email atau kata sandi tidak sesuai. Silakan periksa kembali.';
+          message = 'Invalid email or password. Please verify your credentials.';
         } else if (lower.contains('email already') || lower.contains('user already exists') || lower.contains('duplicate key')) {
-          message = 'Email ini sudah terdaftar. Silakan masuk atau gunakan email lain.';
+          message = 'This email is already registered. Please sign in or use another email.';
         } else if (lower.contains('jwt expired') || lower.contains('token expired')) {
-          message = 'Sesi login telah berakhir. Silakan masuk kembali.';
+          message = 'Session expired. Please sign in again.';
         }
 
         switch (statusCode) {
@@ -62,16 +62,16 @@ class AppException implements Exception {
             return AppException(message, statusCode: statusCode, details: responseData);
         }
       case DioExceptionType.cancel:
-        return RequestCancelledException('Permintaan dibatalkan.');
+        return RequestCancelledException('Request was cancelled.');
       case DioExceptionType.connectionError:
-        return NoInternetException('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+        return NoInternetException('Cannot connect to the server. Please check your internet connection.');
       case DioExceptionType.unknown:
       default:
         final rawMsg = dioException.message ?? '';
         if (rawMsg.contains('SocketException') || rawMsg.contains('Connection refused') || rawMsg.contains('Network is unreachable')) {
-          return NoInternetException('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+          return NoInternetException('Cannot connect to the server. Please check your internet connection.');
         }
-        return AppException('Terjadi kendala jaringan. Silakan periksa koneksi internet Anda.');
+        return AppException('Network error occurred. Please check your connection.');
     }
   }
 }

@@ -20,7 +20,7 @@ class InvoiceView extends GetView<InvoiceController> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Invoice Pesanan', style: AppTextStyles.titleMedium),
+        title: Text('Order Invoice', style: AppTextStyles.titleMedium),
         centerTitle: true,
         backgroundColor: AppColors.surface,
         leading: IconButton(
@@ -36,12 +36,12 @@ class InvoiceView extends GetView<InvoiceController> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.share_outlined, size: 20),
-                    tooltip: 'Bagikan Faktur',
+                    tooltip: 'Share Invoice',
                     onPressed: controller.isPrinting ? null : () => controller.shareInvoice(),
                   ),
                   IconButton(
                     icon: const Icon(Icons.print_outlined, size: 22),
-                    tooltip: 'Cetak Faktur',
+                    tooltip: 'Print Invoice',
                     onPressed: controller.isPrinting ? null : () => controller.printInvoice(),
                   ),
                   const SizedBox(width: 4),
@@ -66,10 +66,10 @@ class InvoiceView extends GetView<InvoiceController> {
                 children: [
                   const Icon(Icons.receipt_long_outlined, size: 64, color: AppColors.textTertiary),
                   const SizedBox(height: AppSpacing.md),
-                  Text('Invoice tidak ditemukan', style: AppTextStyles.titleMedium),
+                  Text('Invoice not found', style: AppTextStyles.titleMedium),
                   const SizedBox(height: AppSpacing.lg),
                   AppButton(
-                    text: 'Kembali ke Riwayat Pesanan',
+                    text: 'Back to Order History',
                     variant: AppButtonVariant.outline,
                     onPressed: () => Get.offNamed(Routes.ORDER_HISTORY),
                   ),
@@ -107,7 +107,7 @@ class InvoiceView extends GetView<InvoiceController> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('No. Pesanan', style: AppTextStyles.bodySmall),
+                              Text('Order No.', style: AppTextStyles.bodySmall),
                               const SizedBox(height: 2),
                               Text(
                                 '#${invoice.order.id.length > 10 ? invoice.order.id.substring(0, 10).toUpperCase() : invoice.order.id}',
@@ -126,15 +126,15 @@ class InvoiceView extends GetView<InvoiceController> {
                       const Divider(height: 32),
 
                       // Customer Info
-                      Text('Informasi Pelanggan', style: AppTextStyles.titleSmall),
+                      Text('Customer Information', style: AppTextStyles.titleSmall),
                       const SizedBox(height: AppSpacing.sm),
-                      _buildReceiptRow('Nama', invoice.user.name),
+                      _buildReceiptRow('Name', invoice.user.name),
                       const SizedBox(height: AppSpacing.xs),
                       _buildReceiptRow('Email', invoice.user.email),
                       const Divider(height: 32),
 
                       // Delivery Address
-                      Text('Alamat Pengiriman', style: AppTextStyles.titleSmall),
+                      Text('Shipping Address', style: AppTextStyles.titleSmall),
                       const SizedBox(height: AppSpacing.sm),
                       Text(
                         invoice.deliveryAddress.name,
@@ -148,7 +148,7 @@ class InvoiceView extends GetView<InvoiceController> {
                       const Divider(height: 32),
 
                       // Itemized List
-                      Text('Rincian Item', style: AppTextStyles.titleSmall),
+                      Text('Item Details', style: AppTextStyles.titleSmall),
                       const SizedBox(height: AppSpacing.sm),
                       ...invoice.order.orderItems.map((item) {
                         return Padding(
@@ -177,18 +177,18 @@ class InvoiceView extends GetView<InvoiceController> {
                       // Financial Breakdown
                       _buildReceiptRow('Subtotal', CurrencyFormatter.format(invoice.subtotal)),
                       const SizedBox(height: AppSpacing.xs),
-                      _buildReceiptRow('Pajak PPN', CurrencyFormatter.format(invoice.tax)),
+                      _buildReceiptRow('VAT', CurrencyFormatter.format(invoice.tax)),
                       const SizedBox(height: AppSpacing.xs),
-                      _buildReceiptRow('Ongkos Kirim', CurrencyFormatter.format(invoice.shipping)),
+                      _buildReceiptRow('Shipping Fee', CurrencyFormatter.format(invoice.shipping)),
                       if (invoice.discount > 0) ...[
                         const SizedBox(height: AppSpacing.xs),
-                        _buildReceiptRow('Diskon', '- ${CurrencyFormatter.format(invoice.discount)}', isHighlight: true),
+                        _buildReceiptRow('Discount', '- ${CurrencyFormatter.format(invoice.discount)}', isHighlight: true),
                       ],
                       const Divider(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Total Pembayaran', style: AppTextStyles.titleSmall),
+                          Text('Total Amount', style: AppTextStyles.titleSmall),
                           Text(
                             CurrencyFormatter.format(invoice.total),
                             style: AppTextStyles.priceLarge.copyWith(fontSize: 18),
@@ -201,7 +201,7 @@ class InvoiceView extends GetView<InvoiceController> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Status Pengiriman', style: AppTextStyles.bodyMedium),
+                          Text('Shipping Status', style: AppTextStyles.bodyMedium),
                           StatusBadge(status: invoice.statusDelivery),
                         ],
                       ),
@@ -215,7 +215,7 @@ class InvoiceView extends GetView<InvoiceController> {
                     invoice.order.urlRedirect!.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.xl),
                   AppButton(
-                    text: 'Selesaikan Pembayaran Sekarang',
+                    text: 'Complete Payment Now',
                     prefixIcon: const Icon(Icons.payment_rounded, color: AppColors.textLight, size: 20),
                     onPressed: () {
                       Get.toNamed(
@@ -231,21 +231,21 @@ class InvoiceView extends GetView<InvoiceController> {
                 // Action Buttons: Print & Share Invoice
                 const SizedBox(height: AppSpacing.xl),
                 AppButton(
-                  text: 'Cetak / Unduh PDF',
+                  text: 'Print / Download PDF',
                   isLoading: controller.isPrinting,
                   prefixIcon: const Icon(Icons.print_rounded, color: AppColors.textLight, size: 20),
                   onPressed: () => controller.printInvoice(),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 AppButton(
-                  text: 'Bagikan Dokumen Faktur',
+                  text: 'Share Invoice PDF',
                   variant: AppButtonVariant.outline,
                   prefixIcon: const Icon(Icons.share_rounded, size: 18),
                   onPressed: () => controller.shareInvoice(),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 AppButton(
-                  text: 'Kembali ke Beranda',
+                  text: 'Back to Home',
                   variant: AppButtonVariant.secondary,
                   onPressed: () => Get.offAllNamed(Routes.HOME),
                 ),

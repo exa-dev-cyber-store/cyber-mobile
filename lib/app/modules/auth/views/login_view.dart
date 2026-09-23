@@ -62,13 +62,13 @@ class LoginView extends GetView<AuthController> {
 
                   // Welcome Typography
                   Text(
-                    'Masuk ke Akun',
+                    'Sign In to Account',
                     style: AppTextStyles.displayMedium,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    'Jelajahi produk Apple resmi dengan jaminan garansi terlengkap',
+                    'Explore official Apple products with full warranty protection',
                     style: AppTextStyles.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
@@ -88,15 +88,15 @@ class LoginView extends GetView<AuthController> {
                         AppTextField(
                           controller: _emailController,
                           label: 'Email',
-                          hint: 'nama@domain.com',
+                          hint: 'name@domain.com',
                           keyboardType: TextInputType.emailAddress,
                           prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textSecondary, size: 20),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Silakan masukkan email Anda';
+                              return 'Please enter your email';
                             }
                             if (!GetUtils.isEmail(value.trim())) {
-                              return 'Format email tidak valid';
+                              return 'Invalid email format';
                             }
                             return null;
                           },
@@ -105,13 +105,13 @@ class LoginView extends GetView<AuthController> {
                         Obx(
                           () => AppTextField(
                             controller: _passwordController,
-                            label: 'Kata Sandi',
-                            hint: 'Masukkan kata sandi',
+                            label: 'Password',
+                            hint: 'Enter your password',
                             isPassword: controller.isObscuredPassword.value,
                             prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppColors.textSecondary, size: 20),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Silakan masukkan kata sandi';
+                                return 'Please enter your password';
                               }
                               return null;
                             },
@@ -120,7 +120,7 @@ class LoginView extends GetView<AuthController> {
                         const SizedBox(height: AppSpacing.xl),
                         Obx(
                           () => AppButton(
-                            text: 'Masuk',
+                            text: 'Sign In',
                             isLoading: controller.isLoading.value,
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
@@ -144,7 +144,7 @@ class LoginView extends GetView<AuthController> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                         child: Text(
-                          'atau masuk dengan',
+                          'or sign in with',
                           style: AppTextStyles.bodySmall,
                         ),
                       ),
@@ -153,9 +153,21 @@ class LoginView extends GetView<AuthController> {
                   ),
                   const SizedBox(height: AppSpacing.lg),
 
+                  // Apple Sign-In Button
+                  Obx(
+                    () => AppButton(
+                      text: 'Continue with Apple',
+                      variant: AppButtonVariant.primary,
+                      prefixIcon: const Icon(Icons.apple, color: Colors.white, size: 22),
+                      isLoading: controller.isLoading.value,
+                      onPressed: () => controller.loginWithApple(),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
                   // Google Sign-In Button
                   AppButton(
-                    text: 'Lanjutkan dengan Google',
+                    text: 'Continue with Google',
                     variant: AppButtonVariant.outline,
                     prefixIcon: Image.asset(
                       'assets/icons/google_icn.png',
@@ -172,13 +184,13 @@ class LoginView extends GetView<AuthController> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Belum memiliki akun? ',
+                        "Don't have an account? ",
                         style: AppTextStyles.bodyMedium,
                       ),
                       InkWell(
                         onTap: () => Get.toNamed(Routes.REGISTER),
                         child: Text(
-                          'Daftar sekarang',
+                          'Sign up now',
                           style: AppTextStyles.labelMedium.copyWith(
                             color: AppColors.accent,
                             fontWeight: FontWeight.w700,

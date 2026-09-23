@@ -38,13 +38,13 @@ class RegisterView extends GetView<AuthController> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Buat Akun Baru',
+                    'Create New Account',
                     style: AppTextStyles.displayMedium,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    'Daftar untuk mulai memesan perangkat Apple impian Anda',
+                    'Sign up to start shopping for your favorite Apple devices',
                     style: AppTextStyles.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
@@ -62,15 +62,15 @@ class RegisterView extends GetView<AuthController> {
                       children: [
                         AppTextField(
                           controller: _nameController,
-                          label: 'Nama Lengkap',
-                          hint: 'Contoh: John Doe',
+                          label: 'Full Name',
+                          hint: 'e.g. John Doe',
                           prefixIcon: const Icon(Icons.person_outline_rounded, color: AppColors.textSecondary, size: 20),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Silakan masukkan nama lengkap';
+                              return 'Please enter your full name';
                             }
                             if (value.trim().length < 3) {
-                              return 'Nama minimal 3 karakter';
+                              return 'Name must be at least 3 characters';
                             }
                             return null;
                           },
@@ -79,15 +79,15 @@ class RegisterView extends GetView<AuthController> {
                         AppTextField(
                           controller: _emailController,
                           label: 'Email',
-                          hint: 'nama@domain.com',
+                          hint: 'name@example.com',
                           keyboardType: TextInputType.emailAddress,
                           prefixIcon: const Icon(Icons.email_outlined, color: AppColors.textSecondary, size: 20),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Silakan masukkan email';
+                              return 'Please enter your email';
                             }
                             if (!GetUtils.isEmail(value.trim())) {
-                              return 'Format email tidak valid';
+                              return 'Invalid email format';
                             }
                             return null;
                           },
@@ -96,16 +96,16 @@ class RegisterView extends GetView<AuthController> {
                         Obx(
                           () => AppTextField(
                             controller: _passwordController,
-                            label: 'Kata Sandi',
-                            hint: 'Minimal 8 karakter',
+                            label: 'Password',
+                            hint: 'At least 8 characters',
                             isPassword: controller.isObscuredPassword.value,
                             prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppColors.textSecondary, size: 20),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Silakan masukkan kata sandi';
+                                return 'Please enter your password';
                               }
                               if (value.length < 8) {
-                                return 'Kata sandi minimal 8 karakter';
+                                return 'Password must be at least 8 characters';
                               }
                               return null;
                             },
@@ -115,16 +115,16 @@ class RegisterView extends GetView<AuthController> {
                         Obx(
                           () => AppTextField(
                             controller: _passwordConfirmController,
-                            label: 'Konfirmasi Kata Sandi',
-                            hint: 'Ulangi kata sandi',
+                            label: 'Confirm Password',
+                            hint: 'Repeat password',
                             isPassword: controller.isObscuredConfirm.value,
                             prefixIcon: const Icon(Icons.lock_outline_rounded, color: AppColors.textSecondary, size: 20),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Konfirmasi kata sandi wajib diisi';
+                                return 'Please confirm your password';
                               }
                               if (value != _passwordController.text) {
-                                return 'Kata sandi tidak cocok';
+                                return 'Passwords do not match';
                               }
                               return null;
                             },
@@ -133,7 +133,7 @@ class RegisterView extends GetView<AuthController> {
                         const SizedBox(height: AppSpacing.xl),
                         Obx(
                           () => AppButton(
-                            text: 'Daftar Sekarang',
+                            text: 'Sign Up',
                             isLoading: controller.isLoading.value,
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
@@ -156,13 +156,13 @@ class RegisterView extends GetView<AuthController> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Sudah memiliki akun? ',
+                        'Already have an account? ',
                         style: AppTextStyles.bodyMedium,
                       ),
                       InkWell(
                         onTap: () => Get.offNamed(Routes.LOGIN),
                         child: Text(
-                          'Masuk di sini',
+                          'Sign In',
                           style: AppTextStyles.labelMedium.copyWith(
                             color: AppColors.accent,
                             fontWeight: FontWeight.w700,

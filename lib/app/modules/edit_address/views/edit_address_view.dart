@@ -22,7 +22,7 @@ class EditAddressView extends GetView<EditAddressController> {
         return Scaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
-            title: Text('Perbarui Alamat', style: AppTextStyles.titleMedium),
+            title: Text('Update Address', style: AppTextStyles.titleMedium),
             centerTitle: true,
             backgroundColor: AppColors.surface,
             elevation: 0,
@@ -33,7 +33,7 @@ class EditAddressView extends GetView<EditAddressController> {
             actions: [
               if (!ctrl.isLoading)
                 IconButton(
-                  tooltip: 'Hapus Alamat',
+                  tooltip: 'Delete Address',
                   icon: const Icon(Icons.delete_outline_rounded, color: AppColors.error, size: 22),
                   onPressed: () => ctrl.confirmDeleteAddress(),
                 ),
@@ -61,11 +61,11 @@ class EditAddressView extends GetView<EditAddressController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Label Alamat / Penerima
+                        // Address / Recipient Label
                         AppTextField(
                           controller: ctrl.nameController,
-                          label: 'Label Alamat / Penerima',
-                          hint: 'Contoh: Rumah, Kantor',
+                          label: 'Address / Recipient Label',
+                          hint: 'e.g. Home, Office',
                           prefixIcon: const Icon(
                             Icons.bookmark_border_rounded,
                             color: AppColors.textSecondary,
@@ -76,16 +76,16 @@ class EditAddressView extends GetView<EditAddressController> {
 
                         // Provinsi
                         RegionSelectorTile(
-                          label: 'Provinsi',
+                          label: 'Province',
                           value: ctrl.provinceController.text,
-                          placeholder: 'Pilih Provinsi',
+                          placeholder: 'Select Province',
                           icon: Icons.map_outlined,
                           isLoading: ctrl.isLoadingProvince,
                           isEnabled: !ctrl.isLoadingProvince,
                           onTap: () async {
                             final selected = await showRegionPicker(
                               context,
-                              title: 'Pilih Provinsi',
+                              title: 'Select Province',
                               items: ctrl.provinces,
                               selectedName: ctrl.provinceController.text,
                             );
@@ -98,21 +98,21 @@ class EditAddressView extends GetView<EditAddressController> {
 
                         // Kota / Kabupaten
                         RegionSelectorTile(
-                          label: 'Kota / Kabupaten',
+                          label: 'City / Regency',
                           value: ctrl.kotaController.text,
                           placeholder: ctrl.isLoadingKota
-                              ? 'Memuat Kota...'
+                              ? 'Loading Cities...'
                               : (ctrl.provinceController.text.isEmpty
-                                  ? 'Pilih provinsi terlebih dahulu'
-                                  : 'Pilih Kota / Kabupaten'),
+                                  ? 'Select a province first'
+                                  : 'Select City / Regency'),
                           icon: Icons.location_city_outlined,
                           isEnabled: ctrl.provinceController.text.isNotEmpty,
                           isLoading: ctrl.isLoadingKota,
-                          disabledHint: 'Pilih provinsi terlebih dahulu',
+                          disabledHint: 'Select a province first',
                           onTap: () async {
                             final selected = await showRegionPicker(
                               context,
-                              title: 'Pilih Kota / Kabupaten',
+                              title: 'Select City / Regency',
                               items: ctrl.kota,
                               selectedName: ctrl.kotaController.text,
                             );
@@ -125,21 +125,21 @@ class EditAddressView extends GetView<EditAddressController> {
 
                         // Kecamatan
                         RegionSelectorTile(
-                          label: 'Kecamatan',
+                          label: 'District',
                           value: ctrl.kecController.text,
                           placeholder: ctrl.isLoadingKec
-                              ? 'Memuat Kecamatan...'
+                              ? 'Loading Districts...'
                               : (ctrl.kotaController.text.isEmpty
-                                  ? 'Pilih kota terlebih dahulu'
-                                  : 'Pilih Kecamatan'),
+                                  ? 'Select a city first'
+                                  : 'Select District'),
                           icon: Icons.holiday_village_outlined,
                           isEnabled: ctrl.kotaController.text.isNotEmpty,
                           isLoading: ctrl.isLoadingKec,
-                          disabledHint: 'Pilih kota terlebih dahulu',
+                          disabledHint: 'Select a city first',
                           onTap: () async {
                             final selected = await showRegionPicker(
                               context,
-                              title: 'Pilih Kecamatan',
+                              title: 'Select District',
                               items: ctrl.kec,
                               selectedName: ctrl.kecController.text,
                             );
@@ -152,21 +152,21 @@ class EditAddressView extends GetView<EditAddressController> {
 
                         // Kelurahan / Desa
                         RegionSelectorTile(
-                          label: 'Kelurahan / Desa',
+                          label: 'Subdistrict / Village',
                           value: ctrl.kelController.text,
                           placeholder: ctrl.isLoadingKel
-                              ? 'Memuat Kelurahan...'
+                              ? 'Loading Subdistricts...'
                               : (ctrl.kecController.text.isEmpty
-                                  ? 'Pilih kecamatan terlebih dahulu'
-                                  : 'Pilih Kelurahan / Desa'),
+                                  ? 'Select a district first'
+                                  : 'Select Subdistrict / Village'),
                           icon: Icons.home_work_outlined,
                           isEnabled: ctrl.kecController.text.isNotEmpty,
                           isLoading: ctrl.isLoadingKel,
-                          disabledHint: 'Pilih kecamatan terlebih dahulu',
+                          disabledHint: 'Select a district first',
                           onTap: () async {
                             final selected = await showRegionPicker(
                               context,
-                              title: 'Pilih Kelurahan / Desa',
+                              title: 'Select Subdistrict / Village',
                               items: ctrl.kel,
                               selectedName: ctrl.kelController.text,
                             );
@@ -177,18 +177,18 @@ class EditAddressView extends GetView<EditAddressController> {
                         ),
                         const SizedBox(height: AppSpacing.lg),
 
-                        // Detail Alamat Lengkap
+                        // Full Street Address Details
                         AppTextField(
                           controller: ctrl.detailController,
-                          label: 'Detail Alamat Lengkap',
-                          hint: 'Nama jalan, nomor rumah, RT/RW, patokan',
+                          label: 'Detailed Street Address',
+                          hint: 'Street name, building/house number, unit, landmark',
                           maxLines: 3,
                         ),
                         const SizedBox(height: AppSpacing.xxl),
 
                         // Tombol Perbarui
                         AppButton(
-                          text: 'Perbarui Alamat',
+                          text: 'Update Address',
                           isLoading: ctrl.isLoadingUpdate,
                           onPressed: () => ctrl.updateAddress(),
                         ),

@@ -1,0 +1,106 @@
+{
+  "project_info": {
+    "project_number": "1043117609248",
+    "firebase_url": "https://testflutterfirebase-26e7c-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "testflutterfirebase-26e7c",
+    "storage_bucket": "testflutterfirebase-26e7c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043117609248:android:5f4ef11b63e9c03ffb8745",
+        "android_client_info": {
+          "package_name": "cloud.eka_dev.chat_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBmRqNotWO-U6sypr-Rtj5caaFwycfX2I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043117609248:android:124f4187ebcd74fbfb8745",
+        "android_client_info": {
+          "package_name": "com.cyber.cyber"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBmRqNotWO-U6sypr-Rtj5caaFwycfX2I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043117609248:android:9d507bf052057a5dfb8745",
+        "android_client_info": {
+          "package_name": "com.example.sanberappflutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBmRqNotWO-U6sypr-Rtj5caaFwycfX2I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043117609248:android:5b8c028c93759a13fb8745",
+        "android_client_info": {
+          "package_name": "com.horus.one"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBmRqNotWO-U6sypr-Rtj5caaFwycfX2I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043117609248:android:6f53f57d0b5d41d0fb8745",
+        "android_client_info": {
+          "package_name": "com.sanber.sanberapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDBmRqNotWO-U6sypr-Rtj5caaFwycfX2I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

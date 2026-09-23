@@ -61,7 +61,7 @@ class CartController extends GetxController {
       }
     } catch (e) {
       AppLogger.e('Error incrementing cart quantity', e);
-      AppSnackbar.error('Tidak dapat menambah jumlah produk.', title: 'Gagal');
+      AppSnackbar.error('Unable to increase product quantity.', title: 'Error');
     } finally {
       isUpdatingItem = false;
       update();
@@ -87,7 +87,7 @@ class CartController extends GetxController {
       }
     } catch (e) {
       AppLogger.e('Error reducing cart quantity', e);
-      AppSnackbar.error('Tidak dapat mengurangi jumlah produk.', title: 'Gagal');
+      AppSnackbar.error('Unable to decrease product quantity.', title: 'Error');
     } finally {
       isUpdatingItem = false;
       update();
@@ -100,11 +100,12 @@ class CartController extends GetxController {
       if (success) {
         products.removeWhere((item) => item.product.id == id);
         calculateTotalCart();
-        AppSnackbar.info('Produk dihapus dari keranjang belanja.', title: 'Dihapus');
+        AppSnackbar.info('Item removed from your cart.', title: 'Removed');
+        update();
       }
     } catch (e) {
       AppLogger.e('Error deleting item from cart', e);
-      AppSnackbar.error('Gagal menghapus produk dari keranjang.', title: 'Gagal');
+      AppSnackbar.error('Failed to remove item from cart.', title: 'Error');
     }
   }
 

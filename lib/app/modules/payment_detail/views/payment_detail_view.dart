@@ -30,7 +30,7 @@ class PaymentDetailView extends StatelessWidget {
               icon: const Icon(Icons.close_rounded, size: 22),
               onPressed: () => _confirmExit(context),
             ),
-            title: Text('Pembayaran', style: AppTextStyles.titleMedium),
+            title: Text('Payment', style: AppTextStyles.titleMedium),
             centerTitle: true,
           ),
           body: SingleChildScrollView(
@@ -62,7 +62,7 @@ class PaymentDetailView extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Selesaikan pembayaran dalam',
+                              'Complete payment within',
                               style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary),
                             ),
                             const SizedBox(height: 2),
@@ -96,7 +96,7 @@ class PaymentDetailView extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Total Pembayaran', style: AppTextStyles.bodySmall),
+                          Text('Total Payment', style: AppTextStyles.bodySmall),
                           const SizedBox(height: 4),
                           Text(
                             CurrencyFormatter.format(controller.totalAmount),
@@ -107,10 +107,10 @@ class PaymentDetailView extends StatelessWidget {
                       IconButton(
                         onPressed: () => controller.copyToClipboard(
                           controller.totalAmount.toString(),
-                          'Total pembayaran',
+                          'Total payment',
                         ),
                         icon: const Icon(Icons.copy_rounded, size: 20, color: AppColors.accent),
-                        tooltip: 'Salin nominal',
+                        tooltip: 'Copy amount',
                       ),
                     ],
                   ),
@@ -140,7 +140,7 @@ class PaymentDetailView extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            isQris ? 'Pembayaran QRIS' : '$bank Virtual Account',
+                            isQris ? 'QRIS Payment' : '$bank Virtual Account',
                             style: AppTextStyles.titleSmall,
                           ),
                           Container(
@@ -167,7 +167,7 @@ class PaymentDetailView extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(
-                                'Pindai Kode QR ini dengan aplikasi pembayaran Anda',
+                                'Scan this QR Code with your payment app',
                                 style: AppTextStyles.bodySmall,
                                 textAlign: TextAlign.center,
                               ),
@@ -188,10 +188,10 @@ class PaymentDetailView extends StatelessWidget {
                                   ),
                                 )
                               else
-                                const Text('QR Code tidak tersedia'),
+                                const Text('QR Code unavailable'),
                               const SizedBox(height: AppSpacing.md),
                               Text(
-                                'Mendukung GoPay, OVO, DANA, ShopeePay, BCA, Livin, dll.',
+                                'Supports GoPay, OVO, DANA, ShopeePay, BCA, Livin, etc.',
                                 style: AppTextStyles.bodySmall.copyWith(color: AppColors.textTertiary),
                                 textAlign: TextAlign.center,
                               ),
@@ -203,25 +203,25 @@ class PaymentDetailView extends StatelessWidget {
                       else if (isMandiri) ...[
                         _buildCopyItem(
                           context,
-                          label: 'Kode Perusahaan (Biller Code)',
+                          label: 'Company Code (Biller Code)',
                           value: charge.billerCode ?? '',
-                          onCopy: () => controller.copyToClipboard(charge.billerCode ?? '', 'Kode Perusahaan'),
+                          onCopy: () => controller.copyToClipboard(charge.billerCode ?? '', 'Company Code'),
                         ),
                         const SizedBox(height: AppSpacing.md),
                         _buildCopyItem(
                           context,
-                          label: 'Nomor Pembayaran (Bill Key)',
+                          label: 'Payment Number (Bill Key)',
                           value: charge.billKey ?? '',
-                          onCopy: () => controller.copyToClipboard(charge.billKey ?? '', 'Nomor Pembayaran'),
+                          onCopy: () => controller.copyToClipboard(charge.billKey ?? '', 'Payment Number'),
                         ),
                       ]
                       // Standard Bank Transfer VA View
                       else ...[
                         _buildCopyItem(
                           context,
-                          label: 'Nomor Virtual Account',
+                          label: 'Virtual Account Number',
                           value: charge.primaryVaNumber,
-                          onCopy: () => controller.copyToClipboard(charge.primaryVaNumber, 'Nomor Virtual Account'),
+                          onCopy: () => controller.copyToClipboard(charge.primaryVaNumber, 'Virtual Account Number'),
                           isLarge: true,
                         ),
                       ],
@@ -242,7 +242,7 @@ class PaymentDetailView extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.sm),
-                        child: Text('Petunjuk Pembayaran', style: AppTextStyles.titleSmall),
+                        child: Text('Payment Instructions', style: AppTextStyles.titleSmall),
                       ),
 
                       // Tabs (m-Banking, ATM, Internet Banking)
@@ -335,7 +335,7 @@ class PaymentDetailView extends StatelessWidget {
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Text(
-                        'Pengecekan otomatis aktif secara berkala',
+                        'Automatic status checking is active',
                         style: AppTextStyles.labelSmall.copyWith(
                           color: AppColors.textTertiary,
                           fontSize: 11,
@@ -345,13 +345,13 @@ class PaymentDetailView extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   AppButton(
-                    text: 'Cek Status Pembayaran',
+                    text: 'Check Payment Status',
                     isLoading: controller.isCheckingStatus,
                     onPressed: () => controller.checkStatus(isManual: true),
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   AppButton(
-                    text: 'Lihat Riwayat Pesanan',
+                    text: 'View Order History',
                     variant: AppButtonVariant.outline,
                     onPressed: () => Get.offNamed(Routes.ORDER_HISTORY),
                   ),
@@ -403,7 +403,7 @@ class PaymentDetailView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.copy_rounded, color: AppColors.accent, size: 20),
             onPressed: onCopy,
-            tooltip: 'Salin',
+            tooltip: 'Copy',
           ),
         ],
       ),
@@ -438,12 +438,12 @@ class PaymentDetailView extends StatelessWidget {
   List<String> _getInstructions(String bank, int tabIndex, bool isQris) {
     if (isQris) {
       return [
-        'Buka aplikasi e-Wallet (GoPay, OVO, Dana, ShopeePay) atau m-Banking pilihan Anda.',
-        'Pilih menu "Bayar" atau "Scan QRIS".',
-        'Arahkan kamera ke Kode QR yang tertera di atas layar ini.',
-        'Periksa nama penerima dan nominal transaksi secara teliti.',
-        'Masukkan PIN Anda untuk menyelesaikan pembayaran.',
-        'Setelah transaksi berhasil, kembali ke aplikasi dan klik "Cek Status Pembayaran".',
+        'Open your preferred e-Wallet (GoPay, OVO, DANA, ShopeePay) or mobile banking app.',
+        'Select "Pay" or "Scan QRIS".',
+        'Point your camera at the QR Code displayed above.',
+        'Carefully verify the recipient details and transaction amount.',
+        'Enter your PIN to complete the payment.',
+        'Once successful, return to this app and tap "Check Payment Status".',
       ];
     }
 
@@ -453,58 +453,58 @@ class PaymentDetailView extends StatelessWidget {
       switch (bank) {
         case 'BCA':
           return [
-            'Buka aplikasi BCA mobile dan pilih menu "m-BCA".',
-            'Pilih menu "m-Transfer" lalu pilih "BCA Virtual Account".',
-            'Masukkan Nomor Virtual Account yang tertera di atas.',
-            'Masukkan jumlah pembayaran sesuai tagihan.',
-            'Masukkan PIN m-BCA Anda dan simpan bukti transaksi.',
+            'Open the BCA mobile app and select "m-BCA".',
+            'Select "m-Transfer", then choose "BCA Virtual Account".',
+            'Enter the Virtual Account Number displayed above.',
+            'Enter the exact payment amount as billed.',
+            'Enter your m-BCA PIN and save the transaction receipt.',
           ];
         case 'MANDIRI':
           return [
-            'Buka aplikasi Livin\' by Mandiri dan masuk ke akun Anda.',
-            'Pilih menu "Bayar" lalu pilih "Pembayaran Baru".',
-            'Pilih "Multi Payment" dan masukkan Kode Perusahaan di atas.',
-            'Masukkan Nomor Pembayaran (Bill Key) Anda.',
-            'Periksa rincian tagihan lalu masukkan PIN Livin\' Anda.',
+            'Open the Livin\' by Mandiri app and log in.',
+            'Select "Pay", then tap "New Payment".',
+            'Choose "Multi Payment" and enter the Company Code shown above.',
+            'Enter your Payment Number (Bill Key).',
+            'Review the bill details and enter your Livin\' PIN.',
           ];
         case 'BNI':
           return [
-            'Buka aplikasi BNI Mobile Banking dan login.',
-            'Pilih menu "Transfer" lalu pilih "Virtual Account Billing".',
-            'Pilih tab "Input Baru" dan masukkan Nomor Virtual Account.',
-            'Konfirmasi rincian tagihan dan masukkan Password Transaksi Anda.',
+            'Open the BNI Mobile Banking app and log in.',
+            'Select "Transfer", then choose "Virtual Account Billing".',
+            'Select the "New Input" tab and enter the Virtual Account Number.',
+            'Confirm the billing details and enter your Transaction Password.',
           ];
         case 'BRI':
           return [
-            'Buka aplikasi BRImo dan lakukan login.',
-            'Pilih menu "BRIVA" lalu pilih "Pembayaran Baru".',
-            'Masukkan Nomor Virtual Account BRI Anda.',
-            'Periksa jumlah pembayaran dan masukkan PIN BRImo Anda.',
+            'Open the BRImo app and log in.',
+            'Select "BRIVA", then choose "New Payment".',
+            'Enter your BRI Virtual Account Number.',
+            'Verify the payment amount and enter your BRImo PIN.',
           ];
         default:
           return [
-            'Buka aplikasi mobile banking bank Anda.',
-            'Pilih menu Transfer ke Rekening Virtual Account.',
-            'Masukkan Nomor Virtual Account yang tertera.',
-            'Konfirmasi nominal dan selesaikan dengan PIN Anda.',
+            'Open your bank\'s mobile banking app.',
+            'Navigate to Transfer to Virtual Account.',
+            'Enter the Virtual Account Number shown above.',
+            'Confirm the amount and complete the transaction with your PIN.',
           ];
       }
     } else if (tabIndex == 1) {
       // ATM
       return [
-        'Masukkan kartu ATM dan PIN Anda di mesin ATM.',
-        'Pilih menu "Transaksi Lainnya" > "Transfer" > "Ke Rekening Virtual Account".',
-        'Masukkan Nomor Virtual Account yang tertera di layar aplikasi.',
-        'Pastikan nama dan nominal yang muncul di layar ATM sudah sesuai.',
-        'Tekan "Ya" untuk memproses pembayaran dan simpan struk sebagai bukti.',
+        'Insert your ATM card and enter your PIN at the ATM.',
+        'Select "Other Transactions" > "Transfer" > "To Virtual Account".',
+        'Enter the Virtual Account Number displayed on the app screen.',
+        'Confirm that the recipient name and amount match.',
+        'Press "Yes" to process the payment and keep the receipt.',
       ];
     } else {
       // Internet Banking
       return [
-        'Buka situs Internet Banking bank Anda dan login.',
-        'Pilih menu "Transfer Dana" lalu pilih "Transfer ke Virtual Account".',
-        'Masukkan Nomor Virtual Account yang tertera di aplikasi.',
-        'Periksa detail pembayaran dan otorisasi transaksi dengan token/SMS OTP.',
+        'Open your bank\'s Internet Banking website and log in.',
+        'Select "Fund Transfer" and choose "Transfer to Virtual Account".',
+        'Enter the Virtual Account Number shown in the app.',
+        'Verify the payment details and authorize the transaction with token/SMS OTP.',
       ];
     }
   }
@@ -514,22 +514,22 @@ class PaymentDetailView extends StatelessWidget {
       AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedXl),
-        title: Text('Keluar dari Pembayaran?', style: AppTextStyles.titleSmall),
+        title: Text('Leave Payment?', style: AppTextStyles.titleSmall),
         content: Text(
-          'Pesanan Anda telah tersimpan di Riwayat Pesanan. Anda dapat menyelesaikan pembayaran kapan saja sebelum batas waktu habis.',
+          'Your order has been saved in Order History. You can complete the payment anytime before it expires.',
           style: AppTextStyles.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Batal'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
               Get.back(); // close dialog
               Get.offAllNamed(Routes.HOME); // return to home
             },
-            child: Text('Ya, Keluar', style: TextStyle(color: AppColors.error)),
+            child: Text('Yes, Leave', style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),

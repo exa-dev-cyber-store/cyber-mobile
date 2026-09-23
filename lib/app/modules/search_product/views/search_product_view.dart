@@ -39,7 +39,7 @@ class SearchProductView extends StatelessWidget {
               onChanged: controller.onQueryChanged,
               onSubmitted: controller.performSearch,
               decoration: InputDecoration(
-                hintText: 'Cari produk Apple...',
+                hintText: 'Search Apple products...',
                 hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textTertiary),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -119,16 +119,16 @@ class SearchProductView extends StatelessWidget {
                 if (ctrl.textController.text.isEmpty && ctrl.results.isEmpty) {
                   return EmptyStateView(
                     icon: Icons.search_rounded,
-                    title: 'Cari Produk Impian Anda',
-                    description: 'Ketik nama perangkat seperti iPhone, MacBook, atau iPad.',
+                    title: 'Find Your Dream Products',
+                    description: 'Search by model such as iPhone, MacBook, or iPad.',
                   );
                 }
 
                 if (ctrl.results.isEmpty) {
                   return EmptyStateView(
                     icon: Icons.search_off_rounded,
-                    title: 'Produk Tidak Ditemukan',
-                    description: 'Coba kata kunci lain atau periksa ejaan pencarian Anda.',
+                    title: 'No Products Found',
+                    description: 'Try different keywords or check your spelling.',
                   );
                 }
 
@@ -136,7 +136,7 @@ class SearchProductView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Ditemukan ${ctrl.totalFound} produk',
+                      'Found ${ctrl.totalFound} ${ctrl.totalFound == 1 ? 'product' : 'products'}',
                       style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondary),
                     ),
                     const SizedBox(height: AppSpacing.md),

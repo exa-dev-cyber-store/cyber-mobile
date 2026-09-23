@@ -227,7 +227,7 @@ class EditAddressController extends GetxController {
         kecController.text.trim().isEmpty ||
         kelController.text.trim().isEmpty ||
         detailController.text.trim().isEmpty) {
-      AppSnackbar.warning('Semua bidang wajib diisi.');
+      AppSnackbar.warning('All fields are required.');
       return;
     }
 
@@ -253,11 +253,11 @@ class EditAddressController extends GetxController {
           await Get.find<SelectAddressesController>().getAddress();
         }
         Get.back();
-        AppSnackbar.success('Alamat berhasil diperbarui.');
+        AppSnackbar.success('Address updated successfully.');
       }
     } catch (e) {
       AppLogger.e('Error updating address', e);
-      AppSnackbar.error('Terjadi kesalahan saat memperbarui alamat.');
+      AppSnackbar.error('An error occurred while updating address.');
     } finally {
       isLoadingUpdate = false;
       update();
@@ -269,16 +269,16 @@ class EditAddressController extends GetxController {
       AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedXl),
-        title: Text('Hapus Alamat?', style: AppTextStyles.titleMedium),
+        title: Text('Delete Address?', style: AppTextStyles.titleMedium),
         content: Text(
-          'Apakah Anda yakin ingin menghapus alamat ini?',
+          'Are you sure you want to delete this address?',
           style: AppTextStyles.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
             child: Text(
-              'Batal',
+              'Cancel',
               style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondary),
             ),
           ),
@@ -288,7 +288,7 @@ class EditAddressController extends GetxController {
               executeDeleteAddress();
             },
             child: Text(
-              'Hapus',
+              'Delete',
               style: AppTextStyles.labelMedium.copyWith(color: AppColors.error),
             ),
           ),
@@ -311,11 +311,11 @@ class EditAddressController extends GetxController {
           await Get.find<SelectAddressesController>().getAddress();
         }
         Get.back();
-        AppSnackbar.success('Alamat berhasil dihapus.');
+        AppSnackbar.success('Address deleted successfully.');
       }
     } catch (e) {
       AppLogger.e('Error deleting address', e);
-      AppSnackbar.error('Gagal menghapus alamat.');
+      AppSnackbar.error('Failed to delete address.');
     } finally {
       isDeleting = false;
       update();

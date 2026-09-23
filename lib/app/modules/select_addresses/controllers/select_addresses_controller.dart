@@ -50,7 +50,7 @@ class SelectAddressesController extends GetxController {
     } catch (e) {
       AppLogger.e('Error loading delivery addresses', e);
       hasError = true;
-      errorMessage = 'Gagal memuat alamat. Periksa koneksi internet Anda.';
+      errorMessage = 'Failed to load addresses. Please check your internet connection.';
       addresses = [];
     } finally {
       isLoading = false;

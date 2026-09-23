@@ -1,0 +1,33 @@
+name: Deploy iOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_to_testflight:
+        description: "Deploy to Apple TestFlight"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  packages: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  deploy:
+    uses: exa31/github-workflows/.github/workflows/flutter-ios.yml@main
+    with:
+      app_name: cyber-mobile
+      flutter_version: "3.x"
+      enable_semantic_release: false
+      update_pubspec: false
+      upload_to_testflight: ${{ inputs.upload_to_testflight || false }}
+    secrets:
+      APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+      APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}

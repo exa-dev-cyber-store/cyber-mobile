@@ -15,19 +15,19 @@ class OnboardingView extends StatelessWidget {
       'title': 'The Ultimate\nApple Experience',
       'image': 'assets/images/onboarding1.png',
       'description':
-          'Temukan ekosistem produk Apple terlengkap dan bergaransi resmi. Kualitas inovasi terbaik tepat di genggaman Anda.',
+          'Discover the complete Apple ecosystem with official warranty. Unrivaled innovation right in your hands.',
     },
     {
       'title': 'Express &\nSecure Delivery',
       'image': 'assets/images/onboarding2.png',
       'description':
-          'Pengiriman kilat dengan perlindungan asuransi penuh langsung ke depan pintu rumah Anda dengan aman.',
+          'Express shipping with full insurance coverage delivered safely to your doorstep.',
     },
     {
       'title': 'Seamless &\nFlexible Payment',
       'image': 'assets/images/onboarding3.png',
       'description':
-          'Metode pembayaran terintegrasi Midtrans: QRIS, Transfer Bank, hingga cicilan dengan jaminan proteksi data.',
+          'Integrated payments via Midtrans: QRIS, Bank Transfer, and flexible installments with data protection.',
     }
   ];
 
@@ -59,7 +59,7 @@ class OnboardingView extends StatelessWidget {
                         ? TextButton(
                             onPressed: () => Get.offNamed(Routes.LOGIN),
                             child: Text(
-                              'Lewati',
+                              'Skip',
                               style: AppTextStyles.labelMedium.copyWith(
                                 color: AppColors.textSecondary,
                               ),
@@ -170,7 +170,7 @@ class OnboardingView extends StatelessWidget {
                     () {
                       final isLastPage = controller.pagesIndex.value == contents.length - 1;
                       return AppButton(
-                        text: isLastPage ? 'Mulai Belanja' : 'Lanjutkan',
+                        text: isLastPage ? 'Get Started' : 'Continue',
                         suffixIcon: Icon(
                           isLastPage ? Icons.arrow_forward_rounded : Icons.chevron_right_rounded,
                           color: AppColors.textLight,

@@ -5,8 +5,18 @@ class ApiEndpoints {
   static const String login = '/auth/login';
   static const String register = '/auth/register';
   static const String googleLogin = '/auth/signin';
+  static const String appleAuth = '/auth/apple-auth';
   static const String logout = '/auth/logout';
+  static const String refreshToken = '/auth/refresh';
   static const String me = '/auth/me';
+  static const String updateProfile = '/auth/me';
+  static const String uploadAvatar = '/auth/avatar';
+
+  // Account Linking
+  static const String linkedAccounts = '/auth/linked-accounts';
+  static const String linkGoogle = '/auth/link/google';
+  static const String linkApple = '/auth/link/apple';
+  static const String unbindApple = '/auth/unbind/apple';
 
   // Products
   static const String products = '/api/products';
@@ -36,6 +46,12 @@ class ApiEndpoints {
   // Vouchers
   static const String publicVouchers = '/api/vouchers/public';
   static const String validateVoucher = '/api/vouchers/validate';
+
+  // Notifications
+  static const String notifications = '/api/notifications';
+  static const String registerDevice = '/api/notifications/devices';
+  static String markNotificationRead(String id) => '/api/notifications/$id/read';
+  static const String markAllNotificationsRead = '/api/notifications/read-all';
 
   // Wilayah Indonesia (External API)
   static const String wilayahBaseUrl = 'https://exa31.github.io/api-wilayah-indonesia/api';

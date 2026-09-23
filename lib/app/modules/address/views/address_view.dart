@@ -18,7 +18,7 @@ class AddressView extends GetView<AddressController> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Buku Alamat', style: AppTextStyles.titleMedium),
+        title: Text('Address Book', style: AppTextStyles.titleMedium),
         centerTitle: true,
         backgroundColor: AppColors.surface,
         leading: IconButton(
@@ -39,9 +39,9 @@ class AddressView extends GetView<AddressController> {
             if (controller.addresses.isEmpty) {
               return EmptyStateView(
                 icon: Icons.location_off_outlined,
-                title: 'Belum Ada Alamat',
-                description: 'Simpan alamat pengiriman untuk mempercepat proses belanja Anda.',
-                buttonText: 'Tambah Alamat',
+                title: 'No Addresses Yet',
+                description: 'Save delivery addresses to speed up your checkout process.',
+                buttonText: 'Add Address',
                 onButtonPressed: () => Get.toNamed(Routes.CREATE_ADDRESS),
               );
             }
@@ -125,7 +125,7 @@ class AddressView extends GetView<AddressController> {
         ),
         child: SafeArea(
           child: AppButton(
-            text: 'Tambah Alamat Baru',
+            text: 'Add New Address',
             prefixIcon: const Icon(Icons.add_rounded, size: 20, color: AppColors.textLight),
             onPressed: () => Get.toNamed(Routes.CREATE_ADDRESS),
           ),
@@ -139,16 +139,16 @@ class AddressView extends GetView<AddressController> {
       AlertDialog(
         backgroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedXl),
-        title: Text('Hapus Alamat?', style: AppTextStyles.titleMedium),
+        title: Text('Delete Address?', style: AppTextStyles.titleMedium),
         content: Text(
-          'Apakah Anda yakin ingin menghapus alamat ini?',
+          'Are you sure you want to delete this address?',
           style: AppTextStyles.bodyMedium,
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
             child: Text(
-              'Batal',
+              'Cancel',
               style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondary),
             ),
           ),
@@ -158,7 +158,7 @@ class AddressView extends GetView<AddressController> {
               controller.deleteAddress(addressId);
             },
             child: Text(
-              'Hapus',
+              'Delete',
               style: AppTextStyles.labelMedium.copyWith(color: AppColors.error),
             ),
           ),

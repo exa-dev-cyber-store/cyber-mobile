@@ -5,9 +5,11 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
 migrate_working_dir/
 
 # IntelliJ related
@@ -47,5 +49,20 @@ app.*.map.json
 .widget_preview/
 devtools_options.yaml
 android/build/
-.gradle/
 **/android/.gradle/
+
+# Keystore and Android signing secrets
+**/android/key.properties
+**/android/*.jks
+**/android/*.keystore
+key.properties
+*.jks
+*.keystore
+
+# iOS Signing & Certificates
+*.p12
+*.mobileprovision
+*.cer
+*.certSigningRequest
+*.p8
+AuthKey_*.p8

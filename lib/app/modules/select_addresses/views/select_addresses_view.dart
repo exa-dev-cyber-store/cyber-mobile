@@ -19,7 +19,7 @@ class SelectAddressesView extends GetView<SelectAddressesController> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text('Pilih Alamat Pengiriman', style: AppTextStyles.titleMedium),
+        title: Text('Select Shipping Address', style: AppTextStyles.titleMedium),
         centerTitle: true,
         backgroundColor: AppColors.surface,
         leading: IconButton(
@@ -43,9 +43,9 @@ class SelectAddressesView extends GetView<SelectAddressesController> {
           if (ctrl.hasError) {
             return EmptyStateView(
               icon: Icons.wifi_off_rounded,
-              title: 'Gagal Memuat Alamat',
-              description: ctrl.errorMessage ?? 'Terjadi kendala saat menghubungkan ke server.',
-              buttonText: 'Coba Lagi',
+              title: 'Failed to Load Addresses',
+              description: ctrl.errorMessage ?? 'An error occurred while connecting to the server.',
+              buttonText: 'Try Again',
               onButtonPressed: () => ctrl.getAddress(),
             );
           }
@@ -53,9 +53,9 @@ class SelectAddressesView extends GetView<SelectAddressesController> {
           if (ctrl.addresses.isEmpty) {
             return EmptyStateView(
               icon: Icons.location_off_outlined,
-              title: 'Belum Ada Alamat',
-              description: 'Tambahkan alamat pengiriman untuk melanjutkan pemesanan produk Apple Anda.',
-              buttonText: 'Tambah Alamat',
+              title: 'No Addresses Found',
+              description: 'Add a shipping address to proceed with your Apple order.',
+              buttonText: 'Add Address',
               onButtonPressed: () => Get.toNamed(Routes.CREATE_ADDRESS, arguments: {'isEdit': false}),
             );
           }
@@ -149,10 +149,10 @@ class SelectAddressesView extends GetView<SelectAddressesController> {
             ),
             child: SafeArea(
               child: AppButton(
-                text: 'Pilih & Lanjut ke Pembayaran',
+                text: 'Select & Continue to Payment',
                 onPressed: () {
                   if (ctrl.currentAddressOption == null) {
-                    AppSnackbar.warning('Silakan pilih alamat pengiriman terlebih dahulu.');
+                    AppSnackbar.warning('Please select a shipping address first.');
                     return;
                   }
                   if (Get.previousRoute == Routes.CHECKOUT) {

@@ -54,7 +54,7 @@ class CheckoutController extends GetxController {
     PaymentMethodOption(
       id: 'bca',
       title: 'BCA Virtual Account',
-      subtitle: 'Verifikasi instan otomatis 24 jam',
+      subtitle: 'Instant 24/7 automatic verification',
       paymentType: 'bank_transfer',
       bank: 'bca',
       icon: Icons.account_balance_rounded,
@@ -62,7 +62,7 @@ class CheckoutController extends GetxController {
     PaymentMethodOption(
       id: 'mandiri',
       title: 'Mandiri Bill Payment',
-      subtitle: 'Transfer via Livin by Mandiri / ATM',
+      subtitle: 'Transfer via Livin by Mandiri or ATM',
       paymentType: 'bank_transfer',
       bank: 'mandiri',
       icon: Icons.account_balance_rounded,
@@ -70,7 +70,7 @@ class CheckoutController extends GetxController {
     PaymentMethodOption(
       id: 'bni',
       title: 'BNI Virtual Account',
-      subtitle: 'Transfer via BNI Mobile / ATM',
+      subtitle: 'Transfer via BNI Mobile or ATM',
       paymentType: 'bank_transfer',
       bank: 'bni',
       icon: Icons.account_balance_rounded,
@@ -78,7 +78,7 @@ class CheckoutController extends GetxController {
     PaymentMethodOption(
       id: 'bri',
       title: 'BRI Virtual Account (BRIVA)',
-      subtitle: 'Transfer via BRImo / ATM',
+      subtitle: 'Transfer via BRImo or ATM',
       paymentType: 'bank_transfer',
       bank: 'bri',
       icon: Icons.account_balance_rounded,
@@ -86,7 +86,7 @@ class CheckoutController extends GetxController {
     PaymentMethodOption(
       id: 'qris',
       title: 'QRIS (Gopay / OVO / Dana)',
-      subtitle: 'Pindai kode QR dari semua e-Wallet & m-Banking',
+      subtitle: 'Scan QR code with any e-Wallet or m-Banking app',
       paymentType: 'qris',
       icon: Icons.qr_code_2_rounded,
     ),
@@ -143,7 +143,7 @@ class CheckoutController extends GetxController {
   Future<bool> applyVoucherCode(String code) async {
     final cleanCode = code.trim().toUpperCase();
     if (cleanCode.isEmpty) {
-      voucherErrorMessage = 'Masukkan kode voucher terlebih dahulu.';
+      voucherErrorMessage = 'Please enter a promo code first.';
       update();
       return false;
     }
@@ -163,16 +163,16 @@ class CheckoutController extends GetxController {
       calculateTotal();
 
       AppSnackbar.success(
-        'Voucher $cleanCode berhasil dipasang! Hemat ${CurrencyFormatter.format(discount)}',
-        title: 'Voucher Digunakan',
+        'Voucher $cleanCode applied! Saved ${CurrencyFormatter.format(discount)}',
+        title: 'Voucher Applied',
       );
       return true;
     } catch (e) {
       AppLogger.e('Error validating voucher', e);
-      voucherErrorMessage = 'Kode voucher tidak valid atau belum memenuhi syarat belanja.';
+      voucherErrorMessage = 'Invalid promo code or minimum spend requirement not met.';
       AppSnackbar.error(
-        'Kode voucher "$cleanCode" tidak valid atau belum memenuhi syarat.',
-        title: 'Voucher Gagal Dipakai',
+        'Promo code "$cleanCode" is invalid or minimum spend requirement not met.',
+        title: 'Failed to Apply Voucher',
       );
       return false;
     } finally {
@@ -184,8 +184,8 @@ class CheckoutController extends GetxController {
   Future<void> applyVoucher(VoucherModel voucher) async {
     if (subTotal < voucher.minPurchase) {
       AppSnackbar.warning(
-        'Minimal belanja untuk voucher ini adalah ${CurrencyFormatter.format(voucher.minPurchase)}.',
-        title: 'Syarat Belanja Belum Terpenuhi',
+        'Minimum purchase for this voucher is ${CurrencyFormatter.format(voucher.minPurchase)}.',
+        title: 'Minimum Spend Not Met',
       );
       return;
     }
@@ -201,7 +201,7 @@ class CheckoutController extends GetxController {
     calculateTotal();
 
     if (code.isNotEmpty) {
-      AppSnackbar.info('Voucher $code telah dilepas.', title: 'Voucher Dihapus');
+      AppSnackbar.info('Voucher $code has been removed.', title: 'Voucher Removed');
     }
   }
 
@@ -214,8 +214,8 @@ class CheckoutController extends GetxController {
 
     if (addressId == null || addressId.isEmpty) {
       AppSnackbar.warning(
-        'Silakan pilih alamat pengiriman terlebih dahulu.',
-        title: 'Alamat Belum Dipilih',
+        'Please select a delivery address first.',
+        title: 'Address Not Selected',
       );
       Get.toNamed(Routes.SELECT_ADDRESSES);
       return;
@@ -223,8 +223,8 @@ class CheckoutController extends GetxController {
 
     if (cartController.products.isEmpty) {
       AppSnackbar.warning(
-        'Keranjang belanja Anda kosong.',
-        title: 'Keranjang Kosong',
+        'Your shopping cart is empty.',
+        title: 'Cart is Empty',
       );
       return;
     }
@@ -255,8 +255,8 @@ class CheckoutController extends GetxController {
     } catch (e) {
       AppLogger.e('Checkout charge error', e);
       AppSnackbar.error(
-        'Terjadi kendala saat memproses pesanan dengan Midtrans. Silakan coba lagi.',
-        title: 'Gagal Memproses Pembayaran',
+        'An error occurred while processing your order. Please try again.',
+        title: 'Payment Processing Failed',
       );
     } finally {
       isCheckingOut = false;

@@ -24,7 +24,9 @@ class DetailProductController extends GetxController {
   void onInit() {
     super.onInit();
     productId = Get.parameters['id']?.toString() ?? '';
-    cartController = Get.isRegistered<CartController>() ? Get.find<CartController>() : Get.put(CartController());
+    cartController = Get.isRegistered<CartController>()
+        ? Get.find<CartController>()
+        : Get.put(CartController());
     fetchProductDetail();
   }
 
@@ -45,11 +47,13 @@ class DetailProductController extends GetxController {
           limit: 4,
           category: product!.category,
         );
-        relatedProducts = related.items.where((p) => p.id != productId).toList();
+        relatedProducts =
+            related.items.where((p) => p.id != productId).toList();
       }
     } catch (e) {
       AppLogger.e('Error loading product details', e);
-      AppSnackbar.error('Tidak dapat memuat detail produk.', title: 'Gagal Memuat');
+      AppSnackbar.error('Unable to load product details.',
+          title: 'Failed to Load');
     } finally {
       isLoading = false;
       update();
@@ -68,17 +72,18 @@ class DetailProductController extends GetxController {
     update();
 
     try {
-      final success = await _cartRepo.addToCart(productId: product!.id, quantity: 1);
+      final success =
+          await _cartRepo.addToCart(productId: product!.id, quantity: 1);
       if (success) {
         await cartController.fetchCart();
         AppSnackbar.success(
-          '${product!.name} telah masuk ke keranjang belanja.',
-          title: 'Berhasil Ditambahkan',
+          '${product!.name} has been added to your cart.',
+          title: 'Added to Cart',
         );
       }
     } catch (e) {
       AppLogger.e('Error adding to cart', e);
-      AppSnackbar.error('Gagal menambahkan produk ke keranjang.', title: 'Gagal');
+      AppSnackbar.error('Failed to add product to cart.', title: 'Error');
     } finally {
       isAddingToCart = false;
       update();

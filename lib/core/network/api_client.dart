@@ -11,7 +11,12 @@ class ApiClient {
   late final Dio dio;
 
   ApiClient._internal(LocalStorageService storage) {
-    final baseUrl = dotenv.env['BASE_URL'] ?? 'https://be-apple-store.eka-dev.cloud';
+    String baseUrl;
+    try {
+      baseUrl = dotenv.env['BASE_URL'] ?? 'https://be-apple-store.eka-dev.cloud';
+    } catch (_) {
+      baseUrl = 'https://be-apple-store.eka-dev.cloud';
+    }
 
     final options = BaseOptions(
       baseUrl: baseUrl,
@@ -24,7 +29,7 @@ class ApiClient {
     dio = Dio(options);
 
     dio.interceptors.addAll([
-      AuthInterceptor(storage),
+      AuthInterceptor(storage, dio: dio),
       PrettyLoggingInterceptor(),
       RetryInterceptor(dio: dio, maxRetries: 2),
       ErrorInterceptor(),
@@ -82,6 +87,22 @@ class ApiClient {
     CancelToken? cancelToken,
   }) {
     return dio.put<T>(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: options,
+      cancelToken: cancelToken,
+    );
+  }
+
+  Future<Response<T>> patch<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+  }) {
+    return dio.patch<T>(
       path,
       data: data,
       queryParameters: queryParameters,
