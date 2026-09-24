@@ -146,3 +146,10 @@ flutter build ipa --release
 - **Deploy iOS**: `.github/workflows/deploy-ios.yml`
   - Triggered via manual `workflow_dispatch` (optional input: `upload_to_testflight=true`).
   - Compiles release `.ipa`, signs with Apple Distribution certificate, and uploads to TestFlight.
+
+---
+
+## 🏷️ Store Listing & Metadata
+
+Complete store listing copy, keywords, descriptions, screenshot storyboards, and character count specifications for manual entry in **Google Play Console** and **Apple App Store Connect** are documented in [`STORE_METADATA.md`](STORE_METADATA.md).
+
