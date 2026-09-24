@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   deploy:
-    uses: exa31/github-workflows/.github/workflows/flutter-ios.yml@main
+    uses: exa31/github-workflows/.github/workflows/flutter-ios.yml@v1.0.0
     with:
       app_name: cyber-mobile
       flutter_version: "3.x"
