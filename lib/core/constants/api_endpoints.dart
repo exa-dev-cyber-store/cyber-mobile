@@ -4,6 +4,8 @@ class ApiEndpoints {
   // Auth
   static const String login = '/auth/login';
   static const String register = '/auth/register';
+  static const String verifyEmail = '/auth/verify-email';
+  static const String resendVerification = '/auth/resend-verification';
   static const String googleLogin = '/auth/signin';
   static const String appleAuth = '/auth/apple-auth';
   static const String logout = '/auth/logout';

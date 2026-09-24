@@ -7,6 +7,7 @@ class Routes {
   static const LOGIN = '/login';
   static const STARTED = '/started';
   static const REGISTER = '/register';
+  static const VERIFY_EMAIL = '/verify-email';
   static const DETAIL_PRODUCT = '/detail-product/:id';
   static const CART = '/cart';
   static const ADDRESS = '/address';

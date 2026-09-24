@@ -36,11 +36,13 @@ class AuthRepository {
     );
 
     final data = response.data;
-    final token = data['token'] ?? data['data']?['token'] ?? data['data']?['accessToken'];
-    final refreshToken = data['refreshToken'] ?? data['data']?['refreshToken'];
-    final user = data['user'] ?? data['data']?['user'] ?? {};
+    final payload = data['data'] ?? data;
+    final requiresEmailVerification = payload['requiresEmailVerification'] == true || data['requiresEmailVerification'] == true;
+    final token = payload['accessToken'] ?? payload['token'] ?? data['token'];
+    final refreshToken = payload['refreshToken'] ?? data['refreshToken'];
+    final user = payload['user'] ?? data['user'] ?? {};
 
-    if (token != null) {
+    if (token != null && !requiresEmailVerification) {
       await _storage.saveUser(
         name: user['name'] ?? '',
         email: user['email'] ?? email,
@@ -52,7 +54,10 @@ class AuthRepository {
 
     return {
       'token': token,
+      'requiresEmailVerification': requiresEmailVerification,
+      'email': email,
       'user': user,
+      'message': data['message'] ?? payload['message'] ?? 'Login successful',
     };
   }
 
@@ -71,10 +76,12 @@ class AuthRepository {
     );
 
     final data = response.data;
-    final token = data['token'] ?? data['data']?['token'];
-    final user = data['user'] ?? data['data']?['user'] ?? {};
+    final payload = data['data'] ?? data;
+    final requiresEmailVerification = payload['requiresEmailVerification'] == true || data['requiresEmailVerification'] == true;
+    final token = payload['accessToken'] ?? payload['token'] ?? data['token'];
+    final user = payload['user'] ?? data['user'] ?? {};
 
-    if (token != null) {
+    if (token != null && !requiresEmailVerification) {
       await _storage.saveUser(
         name: user['name'] ?? name,
         email: user['email'] ?? email,
@@ -85,8 +92,60 @@ class AuthRepository {
 
     return {
       'token': token,
+      'requiresEmailVerification': requiresEmailVerification || token == null,
+      'email': email,
       'user': user,
+      'message': data['message'] ?? 'Registration successful',
     };
+  }
+
+  Future<Map<String, dynamic>> verifyEmail({
+    required String email,
+    required String code,
+  }) async {
+    final response = await _api.post(
+      ApiEndpoints.verifyEmail,
+      data: {
+        'email': email,
+        'code': code,
+      },
+    );
+
+    final data = response.data;
+    final payload = data['data'] ?? data;
+    final token = payload['accessToken'] ?? payload['token'] ?? data['token'];
+    final refreshToken = payload['refreshToken'] ?? data['refreshToken'];
+    final user = payload['user'] ?? data['user'] ?? {};
+
+    if (token != null) {
+      await _storage.saveUser(
+        name: user['name'] ?? '',
+        email: user['email'] ?? email,
+        token: token.toString(),
+        refreshToken: refreshToken?.toString(),
+        userId: user['_id']?.toString(),
+        avatar: user['avatar']?.toString(),
+      );
+    }
+
+    return {
+      'token': token,
+      'user': user,
+      'message': data['message'] ?? 'Email verified successfully',
+    };
+  }
+
+  Future<Map<String, dynamic>> resendVerificationCode({
+    required String email,
+  }) async {
+    final response = await _api.post(
+      ApiEndpoints.resendVerification,
+      data: {
+        'email': email,
+      },
+    );
+    final data = response.data;
+    return data is Map<String, dynamic> ? data : {'message': 'Verification code sent successfully'};
   }
 
   Future<GoogleSignInAccount?> signInWithGoogleAccount() async {

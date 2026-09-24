@@ -40,6 +40,8 @@ class AuthInterceptor extends QueuedInterceptor {
       // Exclude authentication and registration endpoints to prevent infinite refresh loops
       final isAuthEndpoint = path.contains(ApiEndpoints.login) ||
           path.contains(ApiEndpoints.register) ||
+          path.contains(ApiEndpoints.verifyEmail) ||
+          path.contains(ApiEndpoints.resendVerification) ||
           path.contains(ApiEndpoints.googleLogin) ||
           path.contains(ApiEndpoints.appleAuth) ||
           path.contains(ApiEndpoints.refreshToken) ||
@@ -171,6 +173,7 @@ class AuthInterceptor extends QueuedInterceptor {
       final currentRoute = getx.Get.currentRoute;
       if (currentRoute != '/login' &&
           currentRoute != '/register' &&
+          currentRoute != '/verify-email' &&
           currentRoute != '/onboarding' &&
           currentRoute != '/started') {
         getx.Get.offAllNamed('/login');

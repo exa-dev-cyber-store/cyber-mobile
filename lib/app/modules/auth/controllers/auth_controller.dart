@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:get/get.dart';
 import '../../../../core/storage/local_storage.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -11,13 +12,23 @@ class AuthController extends GetxController {
   late final AuthRepository _authRepo;
 
   final isLoading = false.obs;
+  final isVerifying = false.obs;
+  final isResending = false.obs;
+  final resendCooldown = 60.obs;
   final isObscuredPassword = true.obs;
   final isObscuredConfirm = true.obs;
+  Timer? _cooldownTimer;
 
   @override
   void onInit() {
     super.onInit();
     _authRepo = AuthRepository(LocalStorageService.instance);
+  }
+
+  @override
+  void onClose() {
+    _cooldownTimer?.cancel();
+    super.onClose();
   }
 
   void togglePasswordVisibility() {
@@ -26,6 +37,18 @@ class AuthController extends GetxController {
 
   void toggleConfirmVisibility() {
     isObscuredConfirm.value = !isObscuredConfirm.value;
+  }
+
+  void startCooldownTimer() {
+    _cooldownTimer?.cancel();
+    resendCooldown.value = 60;
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (resendCooldown.value > 0) {
+        resendCooldown.value--;
+      } else {
+        timer.cancel();
+      }
+    });
   }
 
   Future<void> login({required String email, required String password}) async {
@@ -43,6 +66,16 @@ class AuthController extends GetxController {
         email: email.trim(),
         password: password,
       );
+
+      if (result['requiresEmailVerification'] == true) {
+        AppSnackbar.warning(
+          'Please verify your email address before signing in.',
+          title: 'Verification Required',
+        );
+        startCooldownTimer();
+        Get.toNamed(Routes.VERIFY_EMAIL, arguments: {'email': email.trim()});
+        return;
+      }
 
       if (result['token'] != null) {
         AppLogger.s('Login successful for $email');
@@ -85,6 +118,16 @@ class AuthController extends GetxController {
         password: password,
       );
 
+      if (result['requiresEmailVerification'] == true) {
+        AppSnackbar.success(
+          'Account created! A 6-digit verification code has been sent to your email.',
+          title: 'Verification Code Sent',
+        );
+        startCooldownTimer();
+        Get.toNamed(Routes.VERIFY_EMAIL, arguments: {'email': email.trim()});
+        return;
+      }
+
       if (result['token'] != null) {
         AppSnackbar.success(
           'Welcome to Cyber Store! Please sign in.',
@@ -100,6 +143,73 @@ class AuthController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<bool> verifyEmailCode({
+    required String email,
+    required String code,
+  }) async {
+    if (code.trim().length != 6) {
+      AppSnackbar.warning(
+        'Please enter a complete 6-digit verification code.',
+        title: 'Attention',
+      );
+      return false;
+    }
+
+    try {
+      isVerifying.value = true;
+      final result = await _authRepo.verifyEmail(
+        email: email.trim(),
+        code: code.trim(),
+      );
+
+      if (result['token'] != null) {
+        AppSnackbar.success(
+          'Email verified successfully! Welcome to Cyber Store.',
+          title: 'Verification Success',
+        );
+        if (!Get.isRegistered<HomeController>()) {
+          Get.put(HomeController(), permanent: true);
+        } else {
+          Get.find<HomeController>().onInit();
+        }
+        Get.offAllNamed(Routes.HOME);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      AppLogger.e('Email verification failed', e);
+      AppSnackbar.error(
+        e,
+        title: 'Verification Failed',
+      );
+      return false;
+    } finally {
+      isVerifying.value = false;
+    }
+  }
+
+  Future<void> resendVerification({required String email}) async {
+    if (resendCooldown.value > 0 || isResending.value) return;
+
+    try {
+      isResending.value = true;
+      await _authRepo.resendVerificationCode(email: email.trim());
+      startCooldownTimer();
+      AppSnackbar.success(
+        'A new 6-digit verification code has been sent to your email.',
+        title: 'Code Sent',
+      );
+    } catch (e) {
+      AppLogger.e('Resend verification code failed', e);
+      AppSnackbar.error(
+        e,
+        title: 'Resend Failed',
+      );
+    } finally {
+      isResending.value = false;
     }
   }
 
