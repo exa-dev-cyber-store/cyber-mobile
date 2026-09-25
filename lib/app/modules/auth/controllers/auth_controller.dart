@@ -213,6 +213,28 @@ class AuthController extends GetxController {
     }
   }
 
+  Future<bool> sendForgotPasswordEmail({required String email}) async {
+    if (email.trim().isEmpty) {
+      AppSnackbar.warning('Please enter your email address.', title: 'Attention');
+      return false;
+    }
+
+    try {
+      isLoading.value = true;
+      final result = await _authRepo.forgotPassword(email: email.trim());
+      final message = result['message']?.toString() ??
+          'If this email address is registered, password reset instructions have been sent to your inbox.';
+      AppSnackbar.success(message, title: 'Reset Link Sent');
+      return true;
+    } catch (e) {
+      AppLogger.e('Forgot password request failed', e);
+      AppSnackbar.error(e, title: 'Request Failed');
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   Future<void> loginWithGoogle() async {
     try {
       isLoading.value = true;

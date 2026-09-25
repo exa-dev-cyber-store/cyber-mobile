@@ -4,6 +4,7 @@ import '../modules/address/bindings/address_binding.dart';
 import '../modules/address/views/address_view.dart';
 import '../modules/auth/bindings/auth_binding.dart';
 import '../modules/auth/views/login_view.dart';
+import '../modules/auth/views/forgot_password_view.dart';
 import '../modules/auth/views/register_view.dart';
 import '../modules/auth/views/verify_email_view.dart';
 import '../modules/auth/views/started_view.dart';
@@ -67,6 +68,11 @@ class AppPages {
     GetPage(
       name: Routes.LOGIN,
       page: () => LoginView(),
+      binding: AuthBinding(),
+    ),
+    GetPage(
+      name: Routes.FORGOT_PASSWORD,
+      page: () => const ForgotPasswordView(),
       binding: AuthBinding(),
     ),
     GetPage(

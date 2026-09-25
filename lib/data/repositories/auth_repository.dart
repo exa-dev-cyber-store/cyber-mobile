@@ -148,6 +148,34 @@ class AuthRepository {
     return data is Map<String, dynamic> ? data : {'message': 'Verification code sent successfully'};
   }
 
+  Future<Map<String, dynamic>> forgotPassword({
+    required String email,
+  }) async {
+    final response = await _api.post(
+      ApiEndpoints.forgotPassword,
+      data: {
+        'email': email,
+      },
+    );
+    final data = response.data;
+    return data is Map<String, dynamic> ? data : {'message': 'Password reset link sent successfully'};
+  }
+
+  Future<Map<String, dynamic>> resetPassword({
+    required String token,
+    required String password,
+  }) async {
+    final response = await _api.post(
+      ApiEndpoints.resetPassword,
+      data: {
+        'token': token,
+        'password': password,
+      },
+    );
+    final data = response.data;
+    return data is Map<String, dynamic> ? data : {'message': 'Password reset successfully'};
+  }
+
   Future<GoogleSignInAccount?> signInWithGoogleAccount() async {
     try {
       return await _googleSignIn.signIn();

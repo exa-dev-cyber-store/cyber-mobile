@@ -5,6 +5,7 @@ class Routes {
   static const HOME = '/';
   static const ONBOARDING = '/onboarding';
   static const LOGIN = '/login';
+  static const FORGOT_PASSWORD = '/forgot-password';
   static const STARTED = '/started';
   static const REGISTER = '/register';
   static const VERIFY_EMAIL = '/verify-email';
