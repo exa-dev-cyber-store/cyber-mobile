@@ -247,12 +247,17 @@ class ProfilePages extends StatelessWidget {
                 final apple = (controller.linkedAccounts['apple'] is Map)
                     ? Map<String, dynamic>.from(controller.linkedAccounts['apple'] as Map)
                     : <String, dynamic>{};
-                final isGoogleLinked = google['linked'] == true;
-                final isAppleLinked = apple['linked'] == true;
+                final signupProvider = controller.linkedAccounts['signupProvider']?.toString() ?? '';
+                final isAppleSignup = controller.linkedAccounts['isAppleSignup'] == true || signupProvider == 'apple';
+                final isGoogleSignup = signupProvider == 'google';
+
+                final isGoogleLinked = google['linked'] == true || isGoogleSignup;
+                final isAppleLinked = apple['linked'] == true || isAppleSignup;
+                final canLinkGoogle = controller.linkedAccounts['canLinkGoogle'] == true;
                 final canUnbindApple = controller.linkedAccounts['canUnbindApple'] == true || apple['canUnbind'] == true;
                 final requiresGoogle = apple['requiresGoogleBeforeUnbind'] == true;
-                final googleEmail = google['email']?.toString() ?? '';
-                final appleEmail = apple['email']?.toString() ?? '';
+                final googleEmail = google['email']?.toString() ?? (isGoogleLinked ? controller.userEmail : '');
+                final appleEmail = apple['email']?.toString() ?? (isAppleLinked ? controller.userEmail : '');
 
                 return Material(
                   color: AppColors.surface,
@@ -273,8 +278,8 @@ class ProfilePages extends StatelessWidget {
                         ),
                         title: 'Google',
                         subtitle: isGoogleLinked
-                            ? (googleEmail.isNotEmpty ? googleEmail : 'Connected')
-                            : 'Connect for faster sign-in',
+                            ? (googleEmail.isNotEmpty ? googleEmail : (controller.userEmail.isNotEmpty ? controller.userEmail : 'Connected'))
+                            : (canLinkGoogle ? 'Connect for faster sign-in' : 'Not linked to this account'),
                         actionWidget: isGoogleLinked
                             ? Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -297,23 +302,39 @@ class ProfilePages extends StatelessWidget {
                                   ],
                                 ),
                               )
-                            : GestureDetector(
-                                onTap: () => controller.bindGoogleAccount(),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: AppColors.accent),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    'Connect',
-                                    style: AppTextStyles.labelSmall.copyWith(
-                                      color: AppColors.accent,
-                                      fontWeight: FontWeight.w700,
+                            : (canLinkGoogle
+                                ? GestureDetector(
+                                    onTap: () => controller.bindGoogleAccount(),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: AppColors.accent),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        'Connect',
+                                        style: AppTextStyles.labelSmall.copyWith(
+                                          color: AppColors.accent,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ),
+                                  )
+                                : Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surfaceTertiary,
+                                      borderRadius: AppSpacing.roundedPill,
+                                    ),
+                                    child: Text(
+                                      'Not Linked',
+                                      style: AppTextStyles.labelSmall.copyWith(
+                                        color: AppColors.textTertiary,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 11,
+                                      ),
+                                    ),
+                                  )),
                       ),
                       const Divider(height: 1, indent: 56),
 
@@ -322,7 +343,7 @@ class ProfilePages extends StatelessWidget {
                         icon: const Icon(Icons.apple, size: 24, color: Colors.black),
                         title: 'Apple',
                         subtitle: isAppleLinked
-                            ? (appleEmail.isNotEmpty ? appleEmail : 'Connected')
+                            ? (appleEmail.isNotEmpty ? appleEmail : (controller.userEmail.isNotEmpty ? controller.userEmail : 'Connected'))
                             : 'Sign in securely with Apple',
                         actionWidget: isAppleLinked
                             ? Row(
