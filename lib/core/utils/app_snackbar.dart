@@ -242,6 +242,9 @@ class AppSnackbar {
     }
 
     // Strip out technical error prefixes from libraries
+    raw = raw.replaceAll(RegExp(r'^SignInWithApple[A-Za-z0-9_]*(\([^)]*\))?:\s*', caseSensitive: false), '');
+    raw = raw.replaceAll(RegExp(r'^SignInWithAppleAuthorizationException\([^)]*\)', caseSensitive: false), '');
+    raw = raw.replaceAll(RegExp(r'^PlatformException\s*\(.*?\):\s*', caseSensitive: false), '');
     raw = raw.replaceAll(RegExp(r'^DioException\s*(\[[^\]]*\])?:\s*', caseSensitive: false), '');
     raw = raw.replaceAll(RegExp(r'^Exception:\s*', caseSensitive: false), '');
     raw = raw.replaceAll(RegExp(r'^ClientException:\s*', caseSensitive: false), '');
@@ -249,6 +252,20 @@ class AppSnackbar {
 
     // Map common raw phrases to friendly English
     final lower = raw.trim().toLowerCase();
+
+    // Apple Sign-In error sanitization
+    if (lower.contains('signinwithapple') ||
+        lower.contains('authenticationservices') ||
+        lower.contains('authorizationerror')) {
+      if (lower.contains('canceled') ||
+          lower.contains('cancelled') ||
+          lower.contains('1001') ||
+          lower.contains('error 1001')) {
+        return ''; // Suppress toast on intentional user cancellation
+      }
+      return 'Unable to complete Apple Sign-In. Please check your Apple ID settings or try again.';
+    }
+
     if (lower.contains('invalid email or password') || lower.contains('invalid credentials')) {
       return 'Invalid email or password. Please verify your credentials.';
     }

@@ -229,13 +229,22 @@ class AuthRepository {
         ),
       );
     } on SignInWithAppleAuthorizationException catch (e) {
-      if (e.code == AuthorizationErrorCode.canceled) {
+      if (e.code == AuthorizationErrorCode.canceled ||
+          e.message.toLowerCase().contains('canceled') ||
+          e.message.toLowerCase().contains('cancelled') ||
+          e.message.contains('1001') ||
+          e.toString().contains('1001')) {
         AppLogger.i('Apple Sign-In was cancelled by user');
         return null;
       }
       AppLogger.e('Apple Sign-In authorization error: ${e.code} - ${e.message}', e);
       rethrow;
     } catch (e) {
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('canceled') || msg.contains('cancelled') || msg.contains('1001')) {
+        AppLogger.i('Apple Sign-In was cancelled by user');
+        return null;
+      }
       AppLogger.e('Apple Sign-In failed', e);
       rethrow;
     }

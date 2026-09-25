@@ -352,16 +352,23 @@ class HomeController extends GetxController {
     } on SignInWithAppleAuthorizationException catch (e) {
       AppLogger.e(
           'Apple bind authorization error: ${e.code} - ${e.message}', e);
-      if (e.code != AuthorizationErrorCode.canceled) {
-        AppSnackbar.error(
-          e.message.isNotEmpty
-              ? e.message
-              : 'Apple connection failed (Code: ${e.code}). Please ensure an Apple ID is signed in under device Settings.',
-          title: 'Failed to Connect Apple',
-        );
+      if (e.code == AuthorizationErrorCode.canceled ||
+          e.message.toLowerCase().contains('canceled') ||
+          e.message.toLowerCase().contains('cancelled') ||
+          e.message.contains('1001') ||
+          e.toString().contains('1001')) {
+        return;
       }
+      AppSnackbar.error(
+        'Unable to link Apple account. Please check your Apple ID settings or try again.',
+        title: 'Failed to Connect Apple',
+      );
     } catch (e) {
       AppLogger.e('Failed to link Apple account', e);
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('canceled') || msg.contains('cancelled') || msg.contains('1001')) {
+        return;
+      }
       AppSnackbar.error(e, title: 'Failed to Connect Apple');
     }
   }

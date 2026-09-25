@@ -310,20 +310,26 @@ class AuthController extends GetxController {
       }
     } on SignInWithAppleAuthorizationException catch (e) {
       AppLogger.e('Apple sign-in authorization error: ${e.code} - ${e.message}', e);
-      if (e.code != AuthorizationErrorCode.canceled) {
-        AppSnackbar.error(
-          e.message.isNotEmpty
-              ? e.message
-              : 'Apple Sign-In failed (Code: ${e.code}). Please ensure an Apple ID is signed in under device Settings.',
-          title: 'Apple Sign-In Failed',
-        );
+      // Suppress toast completely on intentional user cancellation
+      if (e.code == AuthorizationErrorCode.canceled ||
+          e.message.toLowerCase().contains('canceled') ||
+          e.message.toLowerCase().contains('cancelled') ||
+          e.message.contains('1001') ||
+          e.toString().contains('1001')) {
+        return;
       }
+
+      AppSnackbar.error(
+        'Unable to complete Apple Sign-In. Please check your Apple ID settings or try again.',
+        title: 'Apple Sign-In',
+      );
     } catch (e) {
       AppLogger.e('Apple sign-in error', e);
-      AppSnackbar.error(
-        e,
-        title: 'Apple Sign-In Failed',
-      );
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('canceled') || msg.contains('cancelled') || msg.contains('1001')) {
+        return;
+      }
+      AppSnackbar.error(e, title: 'Apple Sign-In');
     } finally {
       isLoading.value = false;
     }
