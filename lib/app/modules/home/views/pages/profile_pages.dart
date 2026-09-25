@@ -253,7 +253,7 @@ class ProfilePages extends StatelessWidget {
 
                 final isGoogleLinked = google['linked'] == true || isGoogleSignup;
                 final isAppleLinked = apple['linked'] == true || isAppleSignup;
-                final canLinkGoogle = controller.linkedAccounts['canLinkGoogle'] == true;
+                final canLinkGoogle = !isGoogleLinked;
                 final canUnbindApple = controller.linkedAccounts['canUnbindApple'] == true || apple['canUnbind'] == true;
                 final requiresGoogle = apple['requiresGoogleBeforeUnbind'] == true;
                 final googleEmail = google['email']?.toString() ?? (isGoogleLinked ? controller.userEmail : '');
