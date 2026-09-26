@@ -176,8 +176,50 @@ Welcome to Cyber!
 - **User Identifiers**: User ID and Device Push Token (Firebase Cloud Messaging) collected for push notifications and account authentication.
 - **App Diagnostics**: Crash logs and telemetry collected via Loki for performance monitoring.
 
-### 🧪 App Review Information (Test Credentials)
-- **Demo Account Email**: `demo@cyber.example.com` (or reviewer test email)
-- **Demo Password**: `[CONFIGURED_IN_STAGING]`
-- **Reviewer Notes**:
-  > *Cyber is a retail shopping application for tech and Apple devices. Reviewers can log in using the provided test account to browse products, add items to cart, test simulated checkout, inspect order history, and view generated PDF invoices.*
+### 🧪 App Review Information (Reviewer Notes & Sandbox Guide)
+
+#### 1. Demo / Reviewer Test Account
+- **Sign-in Method**: Email & Password or Native 1-Tap Sign in with Apple / Google
+- **Demo Email**: `reviewer@cyber.example.com` (or your configured test account)
+- **Demo Password**: `CyberReview2026!`
+- **Account Type**: Full standard customer account with pre-filled sample address and order history
+
+#### 2. Sandbox Payment Notice (Midtrans Payment Gateway)
+> **IMPORTANT NOTE FOR REVIEWERS**:
+> All payment transactions in this build are processed through the **Midtrans Sandbox Gateway**. **No real currency is charged.**
+> Reviewers can complete the entire checkout flow and test live order status transitions using the official Midtrans Sandbox Simulator.
+
+#### 3. Midtrans Simulator Instructions & Test Credentials
+- **Official Midtrans Simulator Portal**: `https://simulator.sandbox.midtrans.com/`
+
+##### A. Virtual Account (VA) Testing:
+1. At checkout, select **Bank Transfer / Virtual Account** (e.g., BCA, Mandiri, BNI, BRI, or Permata).
+2. Copy the generated **Virtual Account Number** shown on the payment screen.
+3. Open the bank's simulator:
+   - **BCA VA Simulator**: `https://simulator.sandbox.midtrans.com/bca/va/index`
+   - **BNI VA Simulator**: `https://simulator.sandbox.midtrans.com/bni/va/index`
+   - **BRI VA Simulator**: `https://simulator.sandbox.midtrans.com/bri/va/index`
+   - **Mandiri Bill Simulator**: `https://simulator.sandbox.midtrans.com/mandiri/bill/index`
+   - **Permata VA Simulator**: `https://simulator.sandbox.midtrans.com/permata/va/index`
+4. Paste the Virtual Account Number and click **Inquire / Pay**.
+5. Return to the app — the order will immediately transition to **Processing / Paid**.
+
+##### B. Credit / Debit Card Sandbox Testing:
+- **Card Number**: `4811 1111 1111 1114`
+- **Expiry Date**: `12/28` (any future MM/YY)
+- **CVV**: `123`
+- **3D Secure OTP**: `112233` (when prompted)
+
+##### C. QRIS Sandbox Testing:
+1. Select **QRIS** at checkout.
+2. Open the **QRIS Simulator**: `https://simulator.sandbox.midtrans.com/qris/index`
+3. Enter the transaction QR string or upload the QR code screenshot to simulate instant payment.
+
+#### 4. Step-by-Step App Review Flow
+1. **Sign In**: Log in using the test account above or tap **Sign in with Apple**.
+2. **Browse**: Explore the Apple catalog (iPhone, Mac, iPad, Watch, AirPods).
+3. **Product Details**: Select any product, choose variant options (color, storage), and tap **Add to Cart**.
+4. **Checkout**: Proceed from Cart to Checkout. Select or add a delivery address.
+5. **Simulate Payment**: Choose any payment method (Virtual Account, QRIS, or Credit Card) and complete the transaction using the simulator links above.
+6. **Order Tracking & Invoices**: Navigate to **Orders** to see live order tracking (Pending ➔ Processing ➔ Shipped ➔ Delivered) and view/download the official PDF Tax Invoice.
+7. **Profile & Account Management**: Open **Profile** to view linked accounts (Apple / Google), update avatar, and manage addresses.
