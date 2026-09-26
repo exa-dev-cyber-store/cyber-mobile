@@ -8,53 +8,67 @@ Official store listing metadata, copy, screenshot storyboards, and compliance do
 
 ### 🍎 Apple App Store Connect
 
-| Field | Limit | Cyber Store Content | Character Count |
-| :--- | :---: | :--- | :---: |
-| **App Name** | 30 | `Cyber - Tech & Apple Store` | 26 / 30 |
-| **Subtitle** | 30 | `Shop Genuine Tech & Apple Gear` | 30 / 30 |
-| **Primary Category** | — | `Shopping` | — |
-| **Secondary Category** | — | `Lifestyle` / `Productivity` | — |
-| **Age Rating** | — | `4+` (No unrestricted web access, no gambling/violence) | — |
-| **Promotional Text** | 170 | `Discover authentic Apple devices, MacBooks, iPhones, iPads, and accessories. Enjoy lightning-fast checkout, real-time shipment tracking, and verified warranties.` | 168 / 170 |
-| **Keywords** | 100 | `apple,store,iphone,macbook,ipad,airpods,gadgets,tech,electronics,shopping,cyber,accessories,buy` | 95 / 100 |
-| **Support URL** | — | `https://store.cyber.example.com/support` | — |
-| **Marketing URL** | — | `https://store.cyber.example.com` | — |
-| **Privacy Policy URL** | — | `https://store.cyber.example.com/privacy-policy` | — |
-| **Copyright** | — | `© 2026 Cyber Store Inc. All rights reserved.` | — |
+| Field                  | Limit | Cyber Store Content                                                                                                                                                 | Character Count |
+| :-----------------------| :-----:| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------| :---------------:|
+| **App Name**           | 30    | `Cyber - Tech & Apple Store`                                                                                                                                        | 26 / 30         |
+| **Subtitle**           | 30    | `Shop Genuine Tech & Apple Gear`                                                                                                                                    | 30 / 30         |
+| **Primary Category**   | —     | `Shopping`                                                                                                                                                          | —               |
+| **Secondary Category** | —     | `Lifestyle` / `Productivity`                                                                                                                                        | —               |
+| **Age Rating**         | —     | `4+` (No unrestricted web access, no gambling/violence)                                                                                                             | —               |
+| **Promotional Text**   | 170   | `Discover authentic Apple devices, MacBooks, iPhones, iPads, and accessories. Enjoy lightning-fast checkout, real-time shipment tracking, and verified warranties.` | 168 / 170       |
+| **Keywords**           | 100   | `apple,store,iphone,macbook,ipad,airpods,gadgets,tech,electronics,shopping,cyber,accessories,buy`                                                                   | 95 / 100        |
+| **Support URL**        | —     | `https://store.cyber.example.com/support`                                                                                                                           | —               |
+| **Marketing URL**      | —     | `https://store.cyber.example.com`                                                                                                                                   | —               |
+| **Privacy Policy URL** | —     | `https://store.cyber.example.com/privacy-policy`                                                                                                                    | —               |
+| **Copyright**          | —     | `© 2026 Cyber Store Inc. All rights reserved.`                                                                                                                      | —               |
 
 #### Description (App Store — max 4,000 chars)
 ```text
-Welcome to Cyber — your premier destination for authentic Apple devices, premium gadgets, and modern tech accessories. 
+Welcome to Cyber, your premier destination for authentic Apple devices, premium gadgets, and modern tech accessories.
 
-Whether you are upgrading to the latest iPhone, equipping your workstation with a powerful MacBook Pro, or accessorizing with AirPods and Apple Watch bands, Cyber delivers a seamless, reliable shopping experience from catalog to doorstep.
+Whether you are upgrading to the latest iPhone, equipping your workstation with a powerful MacBook Pro, or accessorizing with AirPods and Apple Watch bands, Cyber delivers a seamless and reliable shopping experience from catalog to doorstep.
 
-✨ KEY FEATURES:
+KEY FEATURES
 
-📱 Explore Genuine Apple & Tech Catalog
-• Browse the full lineup of iPhones, iPads, MacBooks, Apple Watches, and premium tech essentials.
-• Detailed product specifications, crystal-clear galleries, variant selectors, and authentic customer reviews.
-• Instant search and smart category filters to find exactly what you need in seconds.
+Explore Genuine Apple and Tech Catalog
 
-⚡ Fast & Secure Checkout
-• Integrated payment options with instant verification.
-• Transparent pricing, itemized discounts, and instant invoice generation.
-• Multi-address management: save your home, office, and preferred delivery destinations.
+Browse iPhones, iPads, MacBooks, Apple Watches, and premium tech essentials.
 
-📦 Real-Time Order Tracking & Status
-• Track every stage of your order: Pending, Processing, Shipped, and Delivered.
-• Instant digital invoices with printable PDF export.
-• Full order history and receipt archiving.
+View detailed product specifications, product galleries, variant options, and customer reviews.
 
-🔔 Push Notifications & Exclusive Alerts
-• Be the first to know about flash sales, restocks, and exclusive promo codes.
-• Live delivery updates sent straight to your device.
+Use instant search and smart category filters to find products quickly.
 
-🎨 Modern, Intuitive Experience
-• Designed with sleek visuals, smooth animations, and ergonomic navigation.
-• Seamless Google and Apple Sign-In for fast, secure authentication.
-• Dark and light mode support tailored to your preferences.
+Fast and Secure Checkout
 
-Download Cyber today and elevate your tech shopping experience!
+Multiple payment options with secure verification.
+
+Transparent pricing, itemized discounts, and instant invoice generation.
+
+Manage multiple delivery addresses for your home, office, and other destinations.
+
+Real-Time Order Tracking and Status
+
+Track every stage of your order, including Pending, Processing, Shipped, and Delivered.
+
+Access digital invoices and export them as PDF files.
+
+View your complete order history and archived receipts.
+
+Push Notifications and Exclusive Alerts
+
+Receive notifications about flash sales, product restocks, and promotional codes.
+
+Get live delivery updates directly on your device.
+
+Modern and Intuitive Experience
+
+Enjoy a sleek interface with smooth animations and intuitive navigation.
+
+Sign in quickly and securely with Google or Apple.
+
+Switch between dark and light mode based on your preference.
+
+Download Cyber today and elevate your tech shopping experience.
 ```
 
 ---
