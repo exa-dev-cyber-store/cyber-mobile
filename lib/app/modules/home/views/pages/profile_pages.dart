@@ -776,7 +776,7 @@ class ProfilePages extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedXl),
         title: Text('Disconnect Apple Account?', style: AppTextStyles.titleMedium),
         content: Text(
-          'Are you sure you want to disconnect this Apple account? You can still sign in using your Google account.',
+          'Are you sure you want to disconnect this Apple account? You can still sign in using your account password or other connected accounts.',
           style: AppTextStyles.bodyMedium,
         ),
         actions: [
