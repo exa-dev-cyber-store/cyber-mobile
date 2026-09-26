@@ -34,6 +34,11 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
         setState(() {
           _submitted = true;
         });
+        // Automatically redirect back to Login screen after a short delay
+        await Future.delayed(const Duration(milliseconds: 1500));
+        if (mounted) {
+          Get.offAllNamed(Routes.LOGIN);
+        }
       }
     }
   }
@@ -47,7 +52,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-          onPressed: () => Get.back(),
+          onPressed: () => Get.offAllNamed(Routes.LOGIN),
         ),
       ),
       body: SafeArea(
@@ -65,20 +70,22 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                       width: 72,
                       height: 72,
                       decoration: BoxDecoration(
-                        color: AppColors.accentLight,
+                        color: _submitted ? AppColors.successBg : AppColors.accentLight,
                         borderRadius: AppSpacing.roundedXl,
-                        border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
+                        border: Border.all(
+                          color: (_submitted ? AppColors.success : AppColors.accent).withValues(alpha: 0.2),
+                        ),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.accent.withValues(alpha: 0.1),
+                            color: (_submitted ? AppColors.success : AppColors.accent).withValues(alpha: 0.1),
                             blurRadius: 16,
                             offset: const Offset(0, 8),
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.lock_reset_rounded,
-                        color: AppColors.accent,
+                      child: Icon(
+                        _submitted ? Icons.mark_email_read_rounded : Icons.lock_reset_rounded,
+                        color: _submitted ? AppColors.success : AppColors.accent,
                         size: 34,
                       ),
                     ),
@@ -87,13 +94,15 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
                   // Title & Description
                   Text(
-                    'Forgot Password',
+                    _submitted ? 'Check Your Email' : 'Forgot Password',
                     style: AppTextStyles.displayMedium,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    'Enter your registered email address to receive a secure password reset link',
+                    _submitted
+                        ? 'Password reset link has been dispatched. Redirecting to sign in...'
+                        : 'Enter your registered email address to receive a secure password reset link',
                     style: AppTextStyles.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
@@ -162,10 +171,29 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                         const SizedBox(height: AppSpacing.xl),
 
                         Obx(
-                          () => AppButton(
-                            text: _submitted ? 'Resend Reset Link' : 'Send Reset Link',
-                            isLoading: controller.isLoading.value,
-                            onPressed: _handleSendResetLink,
+                          () => Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (_submitted) ...[
+                                AppButton(
+                                  text: 'Back to Sign In',
+                                  onPressed: () => Get.offAllNamed(Routes.LOGIN),
+                                ),
+                                const SizedBox(height: AppSpacing.sm),
+                                AppButton(
+                                  text: 'Resend Reset Link',
+                                  variant: AppButtonVariant.outline,
+                                  isLoading: controller.isLoading.value,
+                                  onPressed: _handleSendResetLink,
+                                ),
+                              ] else ...[
+                                AppButton(
+                                  text: 'Send Reset Link',
+                                  isLoading: controller.isLoading.value,
+                                  onPressed: _handleSendResetLink,
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       ],
@@ -175,13 +203,14 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
                   // Back to Login Link
                   Center(
-                    child: TextButton(
+                    child: TextButton.icon(
                       onPressed: () => Get.offAllNamed(Routes.LOGIN),
-                      child: Text(
-                        'Remember your password? Back to Sign In',
+                      icon: const Icon(Icons.arrow_back_rounded, size: 16, color: AppColors.textSecondary),
+                      label: Text(
+                        'Back to Sign In',
                         style: AppTextStyles.bodySmall.copyWith(
                           color: AppColors.textSecondary,
-                          decoration: TextDecoration.underline,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
