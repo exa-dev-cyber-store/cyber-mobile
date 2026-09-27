@@ -500,10 +500,11 @@ class ProfilePages extends StatelessWidget {
                   const Divider(height: 1, indent: 56),
                   _buildMenuItem(
                     icon: Icons.delete_outline_rounded,
-                    iconColor: AppColors.error,
+                    iconColor: const Color(0xFFD70015),
                     title: 'Delete Account',
-                    titleColor: AppColors.error,
+                    titleColor: const Color(0xFFD70015),
                     subtitle: 'Permanently remove your account and data',
+                    subtitleColor: AppColors.textSecondary,
                     showArrow: false,
                     onTap: () => _confirmDeleteAccount(context, homeController),
                   ),
@@ -539,6 +540,7 @@ class ProfilePages extends StatelessWidget {
     required String title,
     Color? titleColor,
     required String subtitle,
+    Color? subtitleColor,
     bool showArrow = true,
     required VoidCallback onTap,
   }) {
@@ -569,7 +571,12 @@ class ProfilePages extends StatelessWidget {
                       style: AppTextStyles.labelLarge.copyWith(color: titleColor ?? AppColors.textPrimary),
                     ),
                     const SizedBox(height: 2),
-                    Text(subtitle, style: AppTextStyles.bodySmall),
+                    Text(
+                      subtitle,
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: subtitleColor ?? AppColors.textTertiary,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -863,11 +870,14 @@ class ProfilePages extends StatelessWidget {
                   color: AppColors.errorBg,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 24),
+                child: const Icon(Icons.warning_amber_rounded, color: Color(0xFFD70015), size: 24),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
-                child: Text('Delete Account', style: AppTextStyles.titleMedium),
+                child: Text(
+                  'Delete Account',
+                  style: AppTextStyles.titleMedium.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),
@@ -877,7 +887,7 @@ class ProfilePages extends StatelessWidget {
             children: [
               Text(
                 'Are you sure you want to delete your account? This action is permanent and cannot be undone.',
-                style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: AppSpacing.md),
               Container(
@@ -905,7 +915,7 @@ class ProfilePages extends StatelessWidget {
               onPressed: c.isDeletingAccount ? null : () => Get.back(),
               child: Text(
                 'Cancel',
-                style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.labelMedium.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
               ),
             ),
             ElevatedButton(
@@ -916,8 +926,9 @@ class ProfilePages extends StatelessWidget {
                       controller.deleteAccount();
                     },
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error,
-                foregroundColor: AppColors.textLight,
+                backgroundColor: const Color(0xFFD70015),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 elevation: 0,
               ),
@@ -927,7 +938,14 @@ class ProfilePages extends StatelessWidget {
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
-                  : const Text('Delete Account'),
+                  : Text(
+                      'Delete Account',
+                      style: AppTextStyles.labelMedium.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                      ),
+                    ),
             ),
           ],
         ),
@@ -941,12 +959,17 @@ class ProfilePages extends StatelessWidget {
       children: [
         const Padding(
           padding: EdgeInsets.only(top: 5, right: 8),
-          child: Icon(Icons.circle, size: 5, color: AppColors.textSecondary),
+          child: Icon(Icons.circle, size: 5, color: Color(0xFFD70015)),
         ),
         Expanded(
           child: Text(
             text,
-            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary, height: 1.3),
+            style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.textPrimary,
+              fontSize: 13,
+              height: 1.35,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
