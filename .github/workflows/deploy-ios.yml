@@ -1,7 +1,10 @@
 name: Deploy iOS
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
     branches:
       - main
   workflow_dispatch:
@@ -20,13 +23,14 @@ permissions:
 
 jobs:
   deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     uses: exa31/github-workflows/.github/workflows/flutter-ios.yml@v1.0.0
     with:
       app_name: cyber-mobile
       flutter_version: "3.x"
       enable_semantic_release: false
       update_pubspec: false
-      upload_to_testflight: ${{ github.event_name == 'push' || inputs.upload_to_testflight == true }}
+      upload_to_testflight: ${{ github.event_name == 'workflow_run' || inputs.upload_to_testflight == true }}
       env_content: |
         BASE_URL=${{ vars.BASE_URL }}
         GOOGLE_CLIENT_ID=${{ vars.GOOGLE_CLIENT_ID }}
