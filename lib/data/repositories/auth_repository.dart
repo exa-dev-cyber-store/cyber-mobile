@@ -363,6 +363,20 @@ class AuthRepository {
     return avatarUrl?.toString();
   }
 
+  Future<void> deleteAccount({String? reason}) async {
+    try {
+      await _api.delete(
+        ApiEndpoints.deleteAccount,
+        data: reason != null ? {'reason': reason} : null,
+      );
+    } finally {
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {}
+      await _storage.clearAuth();
+    }
+  }
+
   Future<void> logout() async {
     try {
       final currentRefreshToken = _storage.refreshToken;

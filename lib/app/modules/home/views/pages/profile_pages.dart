@@ -478,7 +478,8 @@ class ProfilePages extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.xl),
 
-            // Section 4: Logout
+            // Section 4: Account & Security
+            _buildSectionHeader('Account & Security'),
             Material(
               color: AppColors.surface,
               shape: RoundedRectangleBorder(
@@ -486,14 +487,27 @@ class ProfilePages extends StatelessWidget {
                 side: const BorderSide(color: AppColors.border),
               ),
               clipBehavior: Clip.antiAlias,
-              child: _buildMenuItem(
-                icon: Icons.logout_rounded,
-                iconColor: AppColors.error,
-                title: 'Log Out',
-                titleColor: AppColors.error,
-                subtitle: 'Sign out from this device',
-                showArrow: false,
-                onTap: () => _confirmLogout(context),
+              child: Column(
+                children: [
+                  _buildMenuItem(
+                    icon: Icons.logout_rounded,
+                    iconColor: AppColors.textPrimary,
+                    title: 'Log Out',
+                    subtitle: 'Sign out from this device',
+                    showArrow: false,
+                    onTap: () => _confirmLogout(context),
+                  ),
+                  const Divider(height: 1, indent: 56),
+                  _buildMenuItem(
+                    icon: Icons.delete_outline_rounded,
+                    iconColor: AppColors.error,
+                    title: 'Delete Account',
+                    titleColor: AppColors.error,
+                    subtitle: 'Permanently remove your account and data',
+                    showArrow: false,
+                    onTap: () => _confirmDeleteAccount(context, homeController),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: AppSpacing.xxxl),
@@ -832,6 +846,110 @@ class ProfilePages extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _confirmDeleteAccount(BuildContext context, HomeController controller) {
+    Get.dialog(
+      GetBuilder<HomeController>(
+        builder: (c) => AlertDialog(
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedXl),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.errorBg,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 24),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text('Delete Account', style: AppTextStyles.titleMedium),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Are you sure you want to delete your account? This action is permanent and cannot be undone.',
+                style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceSecondary,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildDeleteBullet('Your active sessions will be terminated immediately.'),
+                    const SizedBox(height: 8),
+                    _buildDeleteBullet('Personal profile details and saved shipping addresses will be purged.'),
+                    const SizedBox(height: 8),
+                    _buildDeleteBullet('Order invoices and purchase records remain safely archived for legal compliance.'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: c.isDeletingAccount ? null : () => Get.back(),
+              child: Text(
+                'Cancel',
+                style: AppTextStyles.labelMedium.copyWith(color: AppColors.textSecondary),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: c.isDeletingAccount
+                  ? null
+                  : () {
+                      Get.back();
+                      controller.deleteAccount();
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.error,
+                foregroundColor: AppColors.textLight,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                elevation: 0,
+              ),
+              child: c.isDeletingAccount
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Text('Delete Account'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteBullet(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(top: 5, right: 8),
+          child: Icon(Icons.circle, size: 5, color: AppColors.textSecondary),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textSecondary, height: 1.3),
+          ),
+        ),
+      ],
     );
   }
 }

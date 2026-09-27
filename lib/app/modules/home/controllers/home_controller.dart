@@ -46,6 +46,7 @@ class HomeController extends GetxController {
   bool isLoadingLinkedAccounts = false;
   bool isUploadingAvatar = false;
   bool isUpdatingProfile = false;
+  bool isDeletingAccount = false;
 
   // Controllers
   final ScrollController scrollHome = ScrollController();
@@ -382,6 +383,26 @@ class HomeController extends GetxController {
     } catch (e) {
       AppLogger.e('Failed to unbind Apple account', e);
       AppSnackbar.error(e, title: 'Failed to Disconnect Apple');
+    }
+  }
+
+  Future<void> deleteAccount({String? reason}) async {
+    try {
+      isDeletingAccount = true;
+      update();
+      await _authRepo.deleteAccount(reason: reason);
+      AppSnackbar.success(
+        'Your account has been deleted successfully.',
+        title: 'Account Deleted',
+      );
+      await Get.deleteAll(force: true);
+      Get.offAllNamed(Routes.LOGIN);
+    } catch (e) {
+      AppLogger.e('Delete account error', e);
+      AppSnackbar.error(e, title: 'Deletion Failed');
+    } finally {
+      isDeletingAccount = false;
+      update();
     }
   }
 

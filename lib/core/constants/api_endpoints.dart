@@ -14,6 +14,7 @@ class ApiEndpoints {
   static const String refreshToken = '/auth/refresh';
   static const String me = '/auth/me';
   static const String updateProfile = '/auth/me';
+  static const String deleteAccount = '/auth/me';
   static const String uploadAvatar = '/auth/avatar';
 
   // Account Linking
