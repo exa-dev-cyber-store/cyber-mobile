@@ -151,6 +151,48 @@ class RegisterView extends GetView<AuthController> {
                   ),
                   const SizedBox(height: AppSpacing.xxl),
 
+                  // Divider
+                  Row(
+                    children: [
+                      const Expanded(child: Divider(color: AppColors.divider)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                        child: Text(
+                          'or sign up with',
+                          style: AppTextStyles.bodySmall,
+                        ),
+                      ),
+                      const Expanded(child: Divider(color: AppColors.divider)),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+
+                  // Apple Sign-Up Button
+                  Obx(
+                    () => AppButton(
+                      text: 'Sign up with Apple',
+                      variant: AppButtonVariant.primary,
+                      prefixIcon: const Icon(Icons.apple, color: Colors.white, size: 22),
+                      isLoading: controller.isLoading.value,
+                      onPressed: () => controller.loginWithApple(),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // Google Sign-Up Button
+                  AppButton(
+                    text: 'Continue with Google',
+                    variant: AppButtonVariant.outline,
+                    prefixIcon: Image.asset(
+                      'assets/icons/google_icn.png',
+                      width: 20,
+                      height: 20,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.g_mobiledata_rounded, size: 22),
+                    ),
+                    onPressed: () => controller.loginWithGoogle(),
+                  ),
+                  const SizedBox(height: AppSpacing.xxxl),
+
                   // Back to login footer
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

@@ -252,7 +252,7 @@ class AuthController extends GetxController {
           Get.find<HomeController>().onInit();
         }
         Get.offAllNamed(Routes.HOME);
-      } else {
+      } else if (Get.currentRoute != Routes.REGISTER) {
         Get.toNamed(Routes.REGISTER);
       }
     } catch (e) {
@@ -305,7 +305,7 @@ class AuthController extends GetxController {
           Get.find<HomeController>().onInit();
         }
         Get.offAllNamed(Routes.HOME);
-      } else {
+      } else if (Get.currentRoute != Routes.REGISTER) {
         Get.toNamed(Routes.REGISTER);
       }
     } on SignInWithAppleAuthorizationException catch (e) {
